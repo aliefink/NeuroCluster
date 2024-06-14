@@ -24,7 +24,7 @@ class TFR_Cluster_Test(object):
 
   """
 
-  def __init__(self, tfr_data, predictor_data, permute_var, **kwargs):
+  def __init__(self, tfr_data, predictor_data, permute_var, num_permutations, **kwargs):
 
     """Constructor for the Environment class
     This function runs every time we create an instance of the class Environment
@@ -36,6 +36,7 @@ class TFR_Cluster_Test(object):
     self.predictor_data = predictor_data 
     self.tfr_dims       = self.tfr_data.shape[1:] # dims n_freq x n_times
     self.permute_var    = permute_var
+    self.num_permutations = num_permutations # number of times to permute single electrode tfr data
 
 
   def tfr_multireg(self):
@@ -145,6 +146,7 @@ class TFR_Cluster_Test(object):
           max_cluster_data.append({'clust_stat':max_clust_stat,'freq_idx':clust_freqs,'time_idx':clust_times})
           
       return max_cluster_data
+
 
      
   
