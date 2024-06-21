@@ -24,7 +24,7 @@ class TFR_Cluster_Test(object):
 
   """
 
-  def __init__(self, tfr_data, predictor_data, permute_var, **kwargs):
+  def __init__(self, tfr_data, predictor_data, permute_var, ch_name, **kwargs):
 
     """Constructor for the Environment class
     This function runs every time we create an instance of the class Environment
@@ -36,6 +36,7 @@ class TFR_Cluster_Test(object):
     self.predictor_data = predictor_data # single subject behav data
     self.tfr_dims       = self.tfr_data.shape[1:] # dims of single electrode tfr data (n_freqs x n_times)
     self.permute_var    = permute_var # variable to permute in regression model
+    self.ch_name = ch_name # channel name for single electrode tfr data
 
 
   def tfr_multireg(self):

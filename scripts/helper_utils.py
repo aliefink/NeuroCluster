@@ -30,8 +30,46 @@ def subset_channels(data, ch_names):
         return data._data[:, ch_idx, :, :]
     
 
-#def prepare_regressor_df(zscore,dropnans,data_types,regressors_to_include):
+def prepare_regressor_df(power_epochs):
+    '''
+    Prepare a DataFrame containing the behavioral variables.
 
+    Parameters
+    ----------
+    power_epochs : mne.Epochs
+        MNE Epochs object containing the power data.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame containing the behavioral variables.
+
+    '''
+    
+    beh_df = []
+
+    beh_variables = [col for col in power_epochs.metadata if col not in power_epochs.ch_names] # get behavioral variables
+    beh_df = power_epochs.metadata[beh_variables] # extract behavioral variables from metadata
+
+    # present user with list of beahvioral variables and have them decide if they want to keep them or not 
+    for col in beh_df.columns:
+        keep = input(f'Would you like to keep {col}? (yes or no): ')
+        if keep == 'no':
+            beh_df.drop(col, axis=1, inplace=True)
+
+    # present user with list of behavioral variables and have them mark as categorical or continuous
+    for col in beh_df.columns:
+            data_type = input(f'Please specify data type for {col} (category or float64).')
+            beh_df[col] = beh_df[col].astype(data_type)
+
+    # present user with list of behavioral variables that are not marked as category and ask if they want to z-score them
+    for col in beh_df.columns:
+        if beh_df[col].dtype != 'category':
+            z_score = input(f'Would you like to z-score {col}? (yes or no): ')
+            if z_score == 'yes':
+                beh_df[col] = (beh_df[col] - beh_df[col].mean()) / beh_df[col].std()
+
+    return beh_df
 
 def prepare_anat_dic(roi, file_path):
     '''
@@ -68,38 +106,6 @@ def prepare_anat_dic(roi, file_path):
     anat_dic = {f'{subj_id}':roi_info_df.reref_ch_names[roi_info_df.subj_id == subj_id].unique().tolist() for subj_id in roi_subj_ids}
 
     return anat_dic
-
-
-def run_permutation_test(cluster_test, num_permutations=1000):
-
-    '''
-    Run a permutation test for a given cluster test.
-
-    Parameters
-    ----------
-    cluster_test : TFR_Cluster_Test
-        Instance of TFR_Cluster_Test class.
-
-    num_permutations : int
-        Number of permutations to run. Default is 1000.
-
-    Returns
-    -------
-    list
-        List of cluster statistics for each permutation.
-
-    '''
-    # Initialize list to store cluster statistics
-    perm_cluster_list = []
-
-    # Run permutation test
-    for _ in range(num_permutations):
-        permuted_cluster_test = cluster_test.permute_predictor() # permute predictor variable
-        _, tstats = permuted_cluster_test.tfr_multireg() # run regression on permuted data
-        perm_cluster_list.append(cluster_test.max_tfr_cluster(tstats,output='cluster_stat')) # get cluster statistics - only cluster stat (positive and negative) for each permutation
-        del permuted_cluster_test, tstats # delete objects to free up memory
-
-    return perm_cluster_list
 
 
 def run_permutation_test(cluster_test, num_permutations):
