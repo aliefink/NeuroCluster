@@ -32,10 +32,11 @@ class TFR_Cluster_Test(object):
 
     # "self" is just a convention that binds the attributes and methods of a class with the arguments of a given instance
 
-    self.tfr_data       = tfr_data        
-    self.predictor_data = predictor_data 
-    self.tfr_dims       = self.tfr_data.shape[1:] # dims n_freq x n_times
-    self.permute_var    = permute_var
+    self.tfr_data       = tfr_data  # single electrode tfr data
+    self.predictor_data = predictor_data # single subject behav data
+    self.tfr_dims       = self.tfr_data.shape[1:] # dims of single electrode tfr data (n_freqs x n_times)
+    self.permute_var    = permute_var # variable to permute in regression model
+    self.permute_var_idx = # Column index of variable to permute in the predictor data. 
     self.num_permutations = num_permutations # number of times to permute single electrode tfr data
 
 
@@ -135,7 +136,7 @@ class TFR_Cluster_Test(object):
   def max_tfr_cluster(self,tfr_tstats,alternative='two-sided',clust_struct=np.ones(shape=(3,3))):
       
       max_cluster_data = []
-      for binary_mat in self.threshold_tfr_tstat(tfr_tstats,alternative ='two-sided'):
+      for binary_mat in self.threshold_tfr_tstat(tfr_tstats,alternative = alternative):
           cluster_label, num_clusters = label(binary_mat,clust_struct)
           # use argmax to find index of largest absolute value of cluster t statistic sums 
           max_label = np.argmax([np.abs(np.sum(tfr_tstats[cluster_label==i+1])) for i in range(num_clusters)])
@@ -146,7 +147,4 @@ class TFR_Cluster_Test(object):
           max_cluster_data.append({'clust_stat':max_clust_stat,'freq_idx':clust_freqs,'time_idx':clust_times})
           
       return max_cluster_data
-
-
-     
   

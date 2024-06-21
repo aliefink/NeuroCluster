@@ -260,7 +260,7 @@ def permuted_tfr_cluster_test(real_elec_data,predictor_data,tcritical,poi=None,o
                   
 
     Returns:
-    if output = 'tstat':
+    if output = 'tstat' (default):
     permuted_cluster_data (tuple): Tuple of maximum and minimum cluster t stastics for all permutations. 
     
     if output = 'all':
