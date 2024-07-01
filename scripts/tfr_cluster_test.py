@@ -13,7 +13,7 @@ import time
 
 
 class TFR_Cluster_Test(object):
-    """ 
+    '''
     Single-electrode neurophysiology object class to identify time-frequency resolved neural activity correlates of complex behavioral variables using non-parametric 
     cluster-based permutation testing.   
 
@@ -28,17 +28,17 @@ class TFR_Cluster_Test(object):
     Methods
     ----------
     **To-do: fill in methods info
-    """
+    '''
 
     def __init__(self, tfr_data, predictor_data, permute_var, ch_name, **kwargs):
-        """
+        '''
         Args:
         - tfr_data       : (np.array) Single electrode tfr data matrix. Array of floats (n_epochs,n_freqs,n_times). 
         - predictor_data : (pd.DataFrame) Task-based regressor data with dtypes continuous/discreet(int64/float) or categorical(pd.Categorical). DataFrame of (n_epochs,n_regressors).
         - permute_var    : (str) Column label for primary regressor of interest. Array of 1d integers or floats (n_epochs,).
         - ch_name        : (str) Unique electrode identification label. String of characters.  
         - **kwargs       : (optional) alternative, alpha, cluster_shape
-        """
+        '''
 
         self.tfr_data       = tfr_data  # single electrode tfr data
         self.predictor_data = predictor_data # single subject behav data
@@ -47,13 +47,13 @@ class TFR_Cluster_Test(object):
         self.ch_name        = ch_name # channel name for single electrode tfr data
 
     def tfr_regression(self):
-        """
+        '''
         Performs univariate or multivariate OLS regression across tfr matrix for all pixel-level time-frequency power data and task-based predictor variables. Regressions are parallelized across pixels.
 
         Returns:
         - tfr_betas  : (np.array) Matrix of beta coefficients for predictor of interest for each pixel regression. Array of (n_freqs,n_times). 
         - tfr_tstats : (np.array) Matrix of t-statistics from coefficient estimates for predictor of interest for each pixel regression. Array of (n_freqs,n_times). 
-        """
+        '''
         
         # Prepare arguments for parallelization`using tfr matrix indices converted to list of tuples (freq x power)
         pixel_args = [self.make_pixel_df(self.tfr_data[:,freq_idx,time_idx]) for freq_idx,time_idx in self.expand_tfr_indices()]
@@ -75,7 +75,7 @@ class TFR_Cluster_Test(object):
         return tfr_betas, tfr_tstats
 
     def pixel_regression(self,pixel_df):
-        """
+        '''        
         Fit pixel-wise univariate or multivariate OLS regression model and extract beta coefficient and t-statistic for predictor of interest (self.permute_var). 
 
         Args:
@@ -85,7 +85,8 @@ class TFR_Cluster_Test(object):
         Returns:
         - pixel_beta : (np.array) Beta coefficient for predictor of interest from pixel-wise regression. Array of 1d float (1,)
         - pixel_tval : (np.array) Observed t-statistic for predictor of interest from pixel-wise regression. Array of 1d float (1,)
-        """
+        '''
+
 
         # formula should be in form 'col_name + col_name' if col is categorical then should be 'C(col_name)'  
         formula    = '+ '.join(['pow ~ 1 ',(' + ').join([''.join(['C(',col,')']) if pd.api.types.is_categorical_dtype(pixel_df[col])
@@ -97,7 +98,7 @@ class TFR_Cluster_Test(object):
 
     def max_tfr_cluster(self,tfr_tstats,alternative='two-sided',output='all',clust_struct=np.ones(shape=(3,3))):
 
-        """
+        '''
         Identify time-frequency clusters of neural activity that are significantly correlated with the predictor of interest (self.permute_var). Clusters are identified 
         from neighboring pixel regression t-statistics for the predictor of interest that exceed the tcritical threshold from the alternate hypothesis. 
 
@@ -114,9 +115,9 @@ class TFR_Cluster_Test(object):
                                     If output = 'all', return dictionary of maximum cluster statistic ('cluster_stat' : sum of pixel t-statistics), 
                                     cluster frequency indices ('freq_idx':(freq_x,freq_y)), and cluster time indices ('time_idx':(time_x,time_y)). 
                                     If output = 'cluster_stat', return only [{cluster_stat}]. If output = 'freq_time', return only {freq_idx,time_idx}
-                                    ** If no clusters are found, max_cluster_data = {[]}
+                                    ** If no clusters are found, max_cluster_data contains list of empty dictionaries
         *** add docstring for expanded output
-        """
+        '''
         
         max_cluster_data = []
         # Create binary matrix from tfr_tstats by thresholding pixel t-statistics by tcritical. (1 = pixel t-statistic exceeded tcritical threshold)
@@ -143,13 +144,20 @@ class TFR_Cluster_Test(object):
                     max_cluster_data.append({'cluster_stat':max_clust_stat,'freq_idx':clust_freqs,'time_idx':clust_times,
                                             'max_label':max_label,'all_clusters':cluster_label})
             
-            else: # if there is no cluster, keep max_cluster_data empty list
-                continue
-            
+            else: # if there is no cluster, return max_cluster_data with empty dictionaries
+                if output == 'all':
+                    max_cluster_data.append({'cluster_stat':0,'freq_idx':0,'time_idx':0})
+                elif output == 'cluster_stat':
+                    max_cluster_data.append({'cluster_stat':0})
+                elif output == 'freq_time':
+                    max_cluster_data.append({'freq_idx':0,'time_idx':0})
+                elif output == 'expanded':
+                    max_cluster_data.append({'cluster_stat':0,'freq_idx':0,'time_idx':0,'max_label':0,'all_clusters':0})            
+        
         return max_cluster_data
 
     def compute_tcritical(self,alternative ='two-sided',alpha=0.05):
-        """
+        '''
         Calculate critical t-values for regression model.
         
         Args:
@@ -158,7 +166,7 @@ class TFR_Cluster_Test(object):
 
         Returns:
         - tcritical   : (float) Critical t-statistic for hypothesis test. Positive value when alternative = 'two-sided' or 'greater'. Negative when alternative = 'less'. 
-        """
+        '''
 
         # Set number of tails for t-tests using 'alternative' parameter input string. 
             # tails = 2 if alternative = 'two-sided' (two tailed hypothesis test)
@@ -172,7 +180,7 @@ class TFR_Cluster_Test(object):
         return (t.ppf(1-(alpha/tails),deg_free) if alternative != 'less' else np.negative(t.ppf(1-(alpha/tails),deg_free)))
 
     def threshold_tfr_tstat(self,tfr_tstats,alternative='two-sided'):
-        """
+        '''
         Threshold tfr t-statistic matrix using tcritical.
 
         Args:
@@ -181,7 +189,7 @@ class TFR_Cluster_Test(object):
 
         Returns:
         - binary_mat  : (np.array) Binary matrix results of pixel-wise t-tests. Pixel = 1 when tstatistic > tcritical, else pixel = 0. List of array(s) (n_freqs, n_times).
-        """
+        '''
 
         if alternative == 'two-sided': 
             return [(tfr_tstats>self.compute_tcritical()).astype(int), (tfr_tstats<np.negative(self.compute_tcritical())).astype(int)]
@@ -195,18 +203,18 @@ class TFR_Cluster_Test(object):
             raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {alternative}')
     
     def expand_tfr_indices(self):
-        """
+        '''
         Create list of tfr pixel indices for parallelized tfr_regression.
 
         Returns:
         - iter_tup : (list) Time-frequency indices for all pixels in tfr_data. List of tuples [(freq_x_index,freq_y_index),(time_x_index,time_y_index)]        
-        """
+        '''
 
         return list(map(tuple,np.unravel_index(np.dstack(([*np.indices(self.tfr_dims)])),np.product(self.tfr_dims)
                             )[0].reshape(np.product(np.dstack(([*np.indices(self.tfr_dims)])).shape[:2]),-1)))
 
     def make_pixel_df(self,epoch_data,permuted=False):
-        """
+        '''
         Format input data for pixel regression.  input data. Make pixel-level (frequency x timepoint) dataframe. Add tfr power data for single pixel to predictor_df. 
 
         Args:
@@ -217,7 +225,8 @@ class TFR_Cluster_Test(object):
                                       DataFrame of (n_epochs, n_regressors+1). 
         
         ##### to-do add docstring info for permuted kwargs
-        """
+        '''
+        
         if permuted: ###### make clear that this permanently updates predictor data!!!!
             self.predictor_data[self.permute_var] = np.random.permutation(self.predictor_data[self.permute_var].values)
             return self.predictor_data.assign(pow=epoch_data)
@@ -227,6 +236,13 @@ class TFR_Cluster_Test(object):
 ###### UNTESTED PERMUTATION FUNCTIONS!!!
 
     def compute_null_cluster_stats(self,num_permutations=None):
+
+        '''
+        To-do add docstring & test
+
+        Args:
+        - null_cluster_distribution : (list) 
+        '''
 
         #### for every permutation:
             # permute predictor of interest, then make pixel df 
@@ -239,10 +255,13 @@ class TFR_Cluster_Test(object):
 
 
     def permuted_tfr_regression(self):
-        """
+        '''
         Run tfr regression for single permutation
+        
+        Args:
+        - perm_tstats : (np.array)
 
-        """
+        '''
 
         iter_tup = self.expand_tfr_indices()
 
@@ -264,22 +283,20 @@ class TFR_Cluster_Test(object):
             perm_tstats[freq_idx,time_idx] = permuted_results[count][1]
         
         return perm_tstats
-    
-
 
     # def cluster_significance_test(self, null_distribution,max_cluster_stat,alpha=0.05,alternative='two-sided'):
-    #     """
-    #     Compute non-param etric pvalue from cluster permutation data 
-
-    #             - alpha (float): Significance level. Default is 0.05.
-
+        '''
+        Compute non-param etric pvalue from cluster permutation data 
+        
+        Args:
+         - alpha (float): Significance level. Default is 0.05.
+         
+        '''
         # null_df = pd.concat([pd.DataFrame(dict,index=[0]) for dict in null_distribution]).reset_index(drop=True)
         # null_df['sign'] = ['positive' if row.cluster_stat > 0 else 'negative' for row in null_df.iterrows()]
         # for sign in null_df.sign.unique(): #### one loop option 
         # for cluster in max_cluster_stat: ### another loop option
         #     null_max_clusters = null_df.cluster_stat[null_df.sign == sign]
 
-
-    #     """
         
     #     return cluster_pvalue
