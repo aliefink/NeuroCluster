@@ -45,8 +45,8 @@ def pixel_multi_regression(pixel_df,permute_var):
     """
 
     # formula should be in form 'col_name + col_name' if col is categorical then should be 'C(col_name)'  
-    formula    = 'pow ~ 1 + ' + (' + ').join(['C('+col+')' if pd.api.types.is_categorical_dtype(pixel_df[col])
-                                else col for col in pixel_df.columns[~pixel_df.columns.isin(['pow'])].tolist()])
+    formula    = ' + '.join(['pow ~ 1 ',' + '.join( [''.join(['C(',col,')']) if pd.api.types.is_categorical_dtype(pixel_df[col])
+                                else col for col in pixel_df.columns[~pixel_df.columns.isin(['pow'])].tolist()])])
     
     pixel_model = smf.ols(formula,pixel_df,missing='drop').fit() # fit regression model
 
