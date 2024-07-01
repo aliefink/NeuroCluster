@@ -10,6 +10,8 @@ import tqdm
 from scipy.ndimage import label 
 import time
 
+
+
 class TFR_Cluster_Test(object):
     """ 
     Single-electrode neurophysiology object class to identify time-frequency resolved neural activity correlates of complex behavioral variables using non-parametric 
@@ -267,9 +269,16 @@ class TFR_Cluster_Test(object):
 
     # def cluster_significance_test(self, null_distribution,max_cluster_stat,alpha=0.05,alternative='two-sided'):
     #     """
-    #     Compute non-parametric pvalue from cluster permutation data 
+    #     Compute non-param etric pvalue from cluster permutation data 
 
     #             - alpha (float): Significance level. Default is 0.05.
+
+        # null_df = pd.concat([pd.DataFrame(dict,index=[0]) for dict in null_distribution]).reset_index(drop=True)
+        # null_df['sign'] = ['positive' if row.cluster_stat > 0 else 'negative' for row in null_df.iterrows()]
+        # for sign in null_df.sign.unique(): #### one loop option 
+        # for cluster in max_cluster_stat: ### another loop option
+        #     null_max_clusters = null_df.cluster_stat[null_df.sign == sign]
+
 
     #     """
         
