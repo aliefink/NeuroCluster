@@ -232,7 +232,7 @@ class TFR_Cluster_Test(object):
             # find max cluster statistics for permutation  
 
         null_cluster_distribution = Parallel(n_jobs=-1, verbose=5)(delayed
-                                            (self.max_tfr_cluster)(self.permuted_tfr_regression) for n in num_permutations)
+                                            (self.max_tfr_cluster(output='cluster_stat'))(self.permuted_tfr_regression) for n in num_permutations)
         return null_cluster_distribution
 
 
@@ -265,7 +265,7 @@ class TFR_Cluster_Test(object):
     
 
 
-    # def cluster_significance_test(self, null_distribution,alpha=0.05,alternative='two-sided'):
+    # def cluster_significance_test(self, null_distribution,max_cluster_stat,alpha=0.05,alternative='two-sided'):
     #     """
     #     Compute non-parametric pvalue from cluster permutation data 
 
