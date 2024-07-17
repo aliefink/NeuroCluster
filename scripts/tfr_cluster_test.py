@@ -9,6 +9,7 @@ import statsmodels.formula.api as smf
 import tqdm
 from scipy.ndimage import label 
 import time
+import inspect
 
 
 
@@ -40,11 +41,14 @@ class TFR_Cluster_Test(object):
         - **kwargs       : (optional) alternative, alpha, cluster_shape
         '''
 
-        self.tfr_data       = tfr_data  # single electrode tfr data
-        self.predictor_data = predictor_data # single subject behav data
-        self.tfr_dims       = self.tfr_data.shape[1:] # time-frequency dims of electrode data (n_freqs x n_times)
-        self.permute_var    = permute_var # variable to permute in regression model 
-        self.ch_name        = ch_name # channel name for single electrode tfr data
+        self.tfr_data        = tfr_data  # single electrode tfr data
+        self.tfr_dims        = self.tfr_data.shape[1:] # time-frequency dims of electrode data (n_freqs x n_times)
+        self.ch_name         = ch_name # channel name for single electrode tfr data
+        self.predictor_data  = predictor_data # single subject behav data
+        self.permute_var     = permute_var # variable to permute in regression model 
+        self.ols_dmatrix     = pd.get_dummies(predictor_data,drop_first=True) # converts only categorical variables into one dummy coded vector
+        self.permute_var_idx = np.where(self.ols_dmatrix.columns  == permute_var)[0][0] # column index of regressor of interest in dummy coded dmatrix
+        
 
     def tfr_regression(self):
         '''
@@ -54,27 +58,34 @@ class TFR_Cluster_Test(object):
         - tfr_betas  : (np.array) Matrix of beta coefficients for predictor of interest for each pixel regression. Array of (n_freqs,n_times). 
         - tfr_tstats : (np.array) Matrix of t-statistics from coefficient estimates for predictor of interest for each pixel regression. Array of (n_freqs,n_times). 
         '''
+        # run pixel permutations in parallel    
+        expanded_results = Parallel(n_jobs=-1, verbose=5)(delayed(self.pixel_regression)(pixel_data)
+                                                           for pixel_data in np.resize(self.tfr_data,(self.tfr_data.shape[0],np.prod(self.tfr_dims))).T) 
         
-        # Prepare arguments for parallelization`using tfr matrix indices converted to list of tuples (freq x power)
-        pixel_args = [self.make_pixel_df(self.tfr_data[:,freq_idx,time_idx]) for freq_idx,time_idx in self.expand_tfr_indices()]
+        tfr_betas,tfr_tstats = list(zip(*expanded_results))
         
-        # run pixel permutations in parallel 
-        expanded_results = Parallel(n_jobs=-1, verbose=5)(
-                        delayed(self.pixel_regression)(args)
-                            for args in pixel_args)      
-
-        # preallocate np arrays for betas + tstats
-        tfr_betas  = np.zeros((self.tfr_dims))
-        tfr_tstats = np.zeros((self.tfr_dims))
-
-        # expanded_results is a list of tuples (beta,tstat) for every pixel 
-        for count,(freq_idx,time_idx) in enumerate(self.expand_tfr_indices()):
-            tfr_betas[freq_idx,time_idx]  = expanded_results[count][0]
-            tfr_tstats[freq_idx,time_idx] = expanded_results[count][1]
+        return np.resize(np.array(tfr_betas),(self.tfr_data.shape[1],self.tfr_data.shape[2])), np.resize(np.array(tfr_tstats),
+                                                                                                         (self.tfr_data.shape[1],self.tfr_data.shape[2]))
+        # # Prepare arguments for parallelization`using tfr matrix indices converted to list of tuples (freq x power)
+        # pixel_args = [self.make_pixel_df(self.tfr_data[:,freq_idx,time_idx]) for freq_idx,time_idx in self.expand_tfr_indices()]
         
-        return tfr_betas, tfr_tstats
+        # # run pixel permutations in parallel 
+        # expanded_results = Parallel(n_jobs=-1, verbose=5)(
+        #                 delayed(self.pixel_regression)(args)
+        #                     for args in pixel_args)      
 
-    def pixel_regression(self,pixel_df):
+        # # preallocate np arrays for betas + tstats
+        # tfr_betas  = np.zeros((self.tfr_dims))
+        # tfr_tstats = np.zeros((self.tfr_dims))
+
+        # # expanded_results is a list of tuples (beta,tstat) for every pixel 
+        # for count,(freq_idx,time_idx) in enumerate(self.expand_tfr_indices()):
+        #     tfr_betas[freq_idx,time_idx]  = expanded_results[count][0]
+        #     tfr_tstats[freq_idx,time_idx] = expanded_results[count][1]
+        
+        # return tfr_betas, tfr_tstats
+
+    def pixel_regression(self,pixel_data,permuted=False):
         '''        
         Fit pixel-wise univariate or multivariate OLS regression model and extract beta coefficient and t-statistic for predictor of interest (self.permute_var). 
 
@@ -88,13 +99,20 @@ class TFR_Cluster_Test(object):
         '''
 
 
-        # formula should be in form 'col_name + col_name' if col is categorical then should be 'C(col_name)'  
-        formula    = '+ '.join(['pow ~ 1 ',(' + ').join([''.join(['C(',col,')']) if pd.api.types.is_categorical_dtype(pixel_df[col])
-                            else col for col in pixel_df.columns[~pixel_df.columns.isin(['pow'])].tolist()])])
+        # # formula should be in form 'col_name + col_name' if col is categorical then should be 'C(col_name)'  
+        # formula    = '+ '.join(['pow ~ 1 ',(' + ').join([''.join(['C(',col,')']) if pd.api.types.is_categorical_dtype(pixel_df[col])
+        #                     else col for col in pixel_df.columns[~pixel_df.columns.isin(['pow'])].tolist()])])
         
-        pixel_model = smf.ols(formula,pixel_df,missing='drop').fit()
+        # pixel_model = smf.ols(formula,pixel_df,missing='drop').fit()
 
-        return (pixel_model.params[self.permute_var],pixel_model.tvalues[self.permute_var])
+        if permuted: ###### make clear that this permanently updates ols_dmatrix data!!!!
+            self.ols_dmatrix[self.permute_var] = np.random.permutation(self.ols_dmatrix[self.permute_var].values)
+            pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
+        
+        else: 
+            pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
+
+        return (pixel_model.params[self.permute_var_idx + 1],pixel_model.tvalues[self.permute_var_idx + 1])
 
     def max_tfr_cluster(self,tfr_tstats,alternative='two-sided',output='all',clust_struct=np.ones(shape=(3,3))):
 
@@ -174,7 +192,7 @@ class TFR_Cluster_Test(object):
         tails = len(alternative.split('-')) 
 
         # Calculate degrees of freedom (N-k-1) 
-        deg_free = float(len(self.predictor_data)-len(self.predictor_data.columns)-1) #### predictor data must only include regressors in columns
+        deg_free = float(len(self.ols_dmatrix)-len(self.ols_dmatrix.columns)-1) #### predictor data must only include regressors in columns
 
         # Return tcritical from t-distribution. Significance level is alpha/2 for two tailed hypothesis tests (alternative = 'two-sided').
         return (t.ppf(1-(alpha/tails),deg_free) if alternative != 'less' else np.negative(t.ppf(1-(alpha/tails),deg_free)))
@@ -202,36 +220,36 @@ class TFR_Cluster_Test(object):
         else: 
             raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {alternative}')
     
-    def expand_tfr_indices(self):
-        '''
-        Create list of tfr pixel indices for parallelized tfr_regression.
+    # def expand_tfr_indices(self):
+    #     '''
+    #     Create list of tfr pixel indices for parallelized tfr_regression.
 
-        Returns:
-        - iter_tup : (list) Time-frequency indices for all pixels in tfr_data. List of tuples [(freq_x_index,freq_y_index),(time_x_index,time_y_index)]        
-        '''
+    #     Returns:
+    #     - iter_tup : (list) Time-frequency indices for all pixels in tfr_data. List of tuples [(freq_x_index,freq_y_index),(time_x_index,time_y_index)]        
+    #     '''
 
-        return list(map(tuple,np.unravel_index(np.dstack(([*np.indices(self.tfr_dims)])),np.product(self.tfr_dims)
-                            )[0].reshape(np.product(np.dstack(([*np.indices(self.tfr_dims)])).shape[:2]),-1)))
+    #     return list(map(tuple,np.unravel_index(np.dstack(([*np.indices(self.tfr_dims)])),np.product(self.tfr_dims)
+    #                         )[0].reshape(np.product(np.dstack(([*np.indices(self.tfr_dims)])).shape[:2]),-1)))
 
-    def make_pixel_df(self,epoch_data,permuted=False):
-        '''
-        Format input data for pixel regression.  input data. Make pixel-level (frequency x timepoint) dataframe. Add tfr power data for single pixel to predictor_df. 
+    # def make_pixel_df(self,epoch_data,permuted=False):
+    #     '''
+    #     Format input data for pixel regression.  input data. Make pixel-level (frequency x timepoint) dataframe. Add tfr power data for single pixel to predictor_df. 
 
-        Args:
-        - epoch_data : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or'less'. Default is 'two-sided'. Array of 1d integers or floats (n_epochs,).
+    #     Args:
+    #     - epoch_data : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or'less'. Default is 'two-sided'. Array of 1d integers or floats (n_epochs,).
         
-        Returns:
-        - pixel_df   : (pd.DataFrame) Pixel regression input dataframe containing power epochs and task-based behavioral regressor data (dtype=int/float/pd.Categorical). 
-                                      DataFrame of (n_epochs, n_regressors+1). 
+    #     Returns:
+    #     - pixel_df   : (pd.DataFrame) Pixel regression input dataframe containing power epochs and task-based behavioral regressor data (dtype=int/float/pd.Categorical). 
+    #                                   DataFrame of (n_epochs, n_regressors+1). 
         
-        ##### to-do add docstring info for permuted kwargs
-        '''
+    #     ##### to-do add docstring info for permuted kwargs
+    #     '''
         
-        if permuted: ###### make clear that this permanently updates predictor data!!!!
-            self.predictor_data[self.permute_var] = np.random.permutation(self.predictor_data[self.permute_var].values)
-            return self.predictor_data.assign(pow=epoch_data)
-        else: 
-            return self.predictor_data.assign(pow=epoch_data) 
+    #     if permuted: ###### make clear that this permanently updates predictor data!!!!
+    #         self.predictor_data[self.permute_var] = np.random.permutation(self.predictor_data[self.permute_var].values)
+    #         return self.predictor_data.assign(pow=epoch_data)
+    #     else: 
+    #         return self.predictor_data.assign(pow=epoch_data) 
 
 ###### UNTESTED PERMUTATION FUNCTIONS!!!
 
@@ -249,12 +267,12 @@ class TFR_Cluster_Test(object):
             # run tfr regression & extract permutation t stats 
             # find max cluster statistics for permutation  
 
-        null_cluster_distribution = Parallel(n_jobs=-1, verbose=5)(delayed
-                                            (self.max_tfr_cluster(output='cluster_stat'))(self.permuted_tfr_regression) for n in num_permutations)
+        null_tstat = Parallel(n_jobs=-1, verbose=5)(delayed
+                                            (self.permuted_tfr_regression(output='cluster_stat'))(self.permuted_tfr_regression() for n in range(num_permutations)))
         return null_cluster_distribution
 
 
-    def permuted_tfr_regression(self):
+    def permuted_tfr_regression(self,n_jobs=-1,verbose=0):
         '''
         Run tfr regression for single permutation
         
@@ -263,26 +281,33 @@ class TFR_Cluster_Test(object):
 
         '''
 
-        iter_tup = self.expand_tfr_indices()
-
-        # either precompute pixel_args before passing to parallel, or run all together in loop. - check later!! 
-        perm_args = [self.make_pixel_df(self.tfr_data[:,freq_idx,time_idx],permuted=True) for freq_idx,time_idx in iter_tup]
-
-        # Run regression on permuted data + extract tstats only
-
-        # run pixel permutations in parallel 
-        permuted_results = Parallel(n_jobs=-1, verbose=5)(
-                        delayed(self.pixel_regression)(args)
-                            for args in perm_args)      
+        permuted_results = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(self.pixel_regression)(pixel_data,permuted=True)
+                                                            for pixel_data in np.resize(self.tfr_data,(self.tfr_data.shape[0],np.prod(self.tfr_dims))).T) 
         
-        # preallocate np arrays for betas + tstats
-        perm_tstats = np.zeros((self.tfr_dims))
-
-        # expanded_results is a list of tuples (beta,tstat) for every pixel 
-        for count,(freq_idx,time_idx) in enumerate(iter_tup):
-            perm_tstats[freq_idx,time_idx] = permuted_results[count][1]
+        _,perm_tstats = list(zip(*permuted_results))
         
-        return perm_tstats
+        return np.resize(np.array(perm_tstats), (self.tfr_data.shape[1],self.tfr_data.shape[2]))
+
+        # iter_tup = self.expand_tfr_indices()
+
+        # # either precompute pixel_args before passing to parallel, or run all together in loop. - check later!! 
+        # perm_args = [self.make_pixel_df(self.tfr_data[:,freq_idx,time_idx],permuted=True) for freq_idx,time_idx in iter_tup]
+
+        # # Run regression on permuted data + extract tstats only
+
+        # # run pixel permutations in parallel 
+        # permuted_results = Parallel(n_jobs=-1, verbose=5)(
+        #                 delayed(self.pixel_regression)(args)
+        #                     for args in perm_args)      
+        
+        # # preallocate np arrays for betas + tstats
+        # perm_tstats = np.zeros((self.tfr_dims))
+
+        # # expanded_results is a list of tuples (beta,tstat) for every pixel 
+        # for count,(freq_idx,time_idx) in enumerate(iter_tup):
+        #     perm_tstats[freq_idx,time_idx] = permuted_results[count][1]
+        
+        # yield perm_tstats
 
     # def cluster_significance_test(self, null_distribution,max_cluster_stat,alpha=0.05,alternative='two-sided'):
         '''
