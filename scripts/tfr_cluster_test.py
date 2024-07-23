@@ -14,6 +14,7 @@ import inspect
 
 
 class TFR_Cluster_Test(object):
+
     '''
     Single-electrode neurophysiology object class to identify time-frequency resolved neural activity correlates of complex behavioral variables using non-parametric 
     cluster-based permutation testing.   
@@ -32,6 +33,7 @@ class TFR_Cluster_Test(object):
     '''
 
     def __init__(self, tfr_data, predictor_data, permute_var, ch_name, **kwargs):
+
         '''
         Args:
         - tfr_data       : (np.array) Single electrode tfr data matrix. Array of floats (n_epochs,n_freqs,n_times). 
@@ -51,6 +53,7 @@ class TFR_Cluster_Test(object):
         
 
     def tfr_regression(self):
+
         '''
         Performs univariate or multivariate OLS regression across tfr matrix for all pixel-level time-frequency power data and task-based predictor variables. Regressions are parallelized across pixels.
 
@@ -58,6 +61,7 @@ class TFR_Cluster_Test(object):
         - tfr_betas  : (np.array) Matrix of beta coefficients for predictor of interest for each pixel regression. Array of (n_freqs,n_times). 
         - tfr_tstats : (np.array) Matrix of t-statistics from coefficient estimates for predictor of interest for each pixel regression. Array of (n_freqs,n_times). 
         '''
+        
         # run pixel permutations in parallel    
         expanded_results = Parallel(n_jobs=-1, verbose=5)(delayed(self.pixel_regression)(pixel_data)
                                                            for pixel_data in np.resize(self.tfr_data,(self.tfr_data.shape[0],np.prod(self.tfr_dims))).T) 
@@ -66,52 +70,31 @@ class TFR_Cluster_Test(object):
         
         return np.resize(np.array(tfr_betas),(self.tfr_data.shape[1],self.tfr_data.shape[2])), np.resize(np.array(tfr_tstats),
                                                                                                          (self.tfr_data.shape[1],self.tfr_data.shape[2]))
-        # # Prepare arguments for parallelization`using tfr matrix indices converted to list of tuples (freq x power)
-        # pixel_args = [self.make_pixel_df(self.tfr_data[:,freq_idx,time_idx]) for freq_idx,time_idx in self.expand_tfr_indices()]
+
+    def pixel_regression(self,pixel_data): #def pixel_regression(self,pixel_data,permuted=False):
         
-        # # run pixel permutations in parallel 
-        # expanded_results = Parallel(n_jobs=-1, verbose=5)(
-        #                 delayed(self.pixel_regression)(args)
-        #                     for args in pixel_args)      
-
-        # # preallocate np arrays for betas + tstats
-        # tfr_betas  = np.zeros((self.tfr_dims))
-        # tfr_tstats = np.zeros((self.tfr_dims))
-
-        # # expanded_results is a list of tuples (beta,tstat) for every pixel 
-        # for count,(freq_idx,time_idx) in enumerate(self.expand_tfr_indices()):
-        #     tfr_betas[freq_idx,time_idx]  = expanded_results[count][0]
-        #     tfr_tstats[freq_idx,time_idx] = expanded_results[count][1]
-        
-        # return tfr_betas, tfr_tstats
-
-    def pixel_regression(self,pixel_data,permuted=False):
         '''        
         Fit pixel-wise univariate or multivariate OLS regression model and extract beta coefficient and t-statistic for predictor of interest (self.permute_var). 
 
         Args:
-        - pixel_df   : (pd.DataFrame) Pixel-level regression dataframe with power epochs data and behavioral regressors. DataFrame of (n_epochs, n_regressors+1). 
-                                      Regressor column data must be continuous(dtype=float), discrete(dtype=int), or categorical(dtype=pd.Categorical). 
+        - pixel_data : (np.array) Array of power values for every epochs from single time-frequency pixel in tfr-data. Array of floats (num_epochs,)
         
         Returns:
         - pixel_beta : (np.array) Beta coefficient for predictor of interest from pixel-wise regression. Array of 1d float (1,)
         - pixel_tval : (np.array) Observed t-statistic for predictor of interest from pixel-wise regression. Array of 1d float (1,)
         '''
 
-
-        # # formula should be in form 'col_name + col_name' if col is categorical then should be 'C(col_name)'  
-        # formula    = '+ '.join(['pow ~ 1 ',(' + ').join([''.join(['C(',col,')']) if pd.api.types.is_categorical_dtype(pixel_df[col])
-        #                     else col for col in pixel_df.columns[~pixel_df.columns.isin(['pow'])].tolist()])])
+        # if permuted: ###### make clear that this permanently updates ols_dmatrix data!!!!
+        #     self.ols_dmatrix[self.permute_var] = np.random.permutation(self.ols_dmatrix[self.permute_var].values)
+        #     pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
         
-        # pixel_model = smf.ols(formula,pixel_df,missing='drop').fit()
-
-        if permuted: ###### make clear that this permanently updates ols_dmatrix data!!!!
-            self.ols_dmatrix[self.permute_var] = np.random.permutation(self.ols_dmatrix[self.permute_var].values)
-            pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
+        # else: 
+        #     pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
         
-        else: 
-            pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
-
+        # Fit pixel-wise regression model. If called in permuted_tfr_regressions, ols_dmatrix.permute_var is permuted once per tfr, not for each pixel.
+        pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
+        
+        # Return the estimated beta coefficient and tvalue for predictor of interest only (permute_var)
         return (pixel_model.params[self.permute_var_idx + 1],pixel_model.tvalues[self.permute_var_idx + 1])
 
     def max_tfr_cluster(self,tfr_tstats,alternative='two-sided',output='all',clust_struct=np.ones(shape=(3,3))):
@@ -129,12 +112,12 @@ class TFR_Cluster_Test(object):
                                         https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.label.html
 
         Returns:
-        - max_cluster_data : (list) Beta coefficient for predictor of interest for each pixel regression. List (len=2 if 'two-sided') of dict(s).
+        - max_cluster_data : (list) Data for cluster with maximum statistic (sum of pixel tvals). List of dict(s). If alternative='two-sided':len=2,else: len=1. 
                                     If output = 'all', return dictionary of maximum cluster statistic ('cluster_stat' : sum of pixel t-statistics), 
                                     cluster frequency indices ('freq_idx':(freq_x,freq_y)), and cluster time indices ('time_idx':(time_x,time_y)). 
                                     If output = 'cluster_stat', return only [{cluster_stat}]. If output = 'freq_time', return only {freq_idx,time_idx}
+                                    If output = 'expanded', return 'all' & 'all_clusters': 2D cluster ID matrix,'max_label': all_clusters label of max cluster
                                     ** If no clusters are found, max_cluster_data contains list of empty dictionaries
-        *** add docstring for expanded output
         '''
         
         max_cluster_data = []
@@ -160,7 +143,7 @@ class TFR_Cluster_Test(object):
                     max_cluster_data.append({'freq_idx':clust_freqs,'time_idx':clust_times})
                 elif output == 'expanded':
                     max_cluster_data.append({'cluster_stat':max_clust_stat,'freq_idx':clust_freqs,'time_idx':clust_times,
-                                            'max_label':max_label,'all_clusters':cluster_label})
+                                            'all_clusters':cluster_label,'max_label':max_label})
             
             else: # if there is no cluster, return max_cluster_data with empty dictionaries
                 if output == 'all':
@@ -175,6 +158,7 @@ class TFR_Cluster_Test(object):
         return max_cluster_data
 
     def compute_tcritical(self,alternative ='two-sided',alpha=0.05):
+
         '''
         Calculate critical t-values for regression model.
         
@@ -198,6 +182,7 @@ class TFR_Cluster_Test(object):
         return (t.ppf(1-(alpha/tails),deg_free) if alternative != 'less' else np.negative(t.ppf(1-(alpha/tails),deg_free)))
 
     def threshold_tfr_tstat(self,tfr_tstats,alternative='two-sided'):
+
         '''
         Threshold tfr t-statistic matrix using tcritical.
 
@@ -206,122 +191,105 @@ class TFR_Cluster_Test(object):
         - alternative : (str) Type of hypothesis test for t-distribution. Must be 'two-sided', 'greater', 'less'. Default is 'two-sided'.
 
         Returns:
-        - binary_mat  : (np.array) Binary matrix results of pixel-wise t-tests. Pixel = 1 when tstatistic > tcritical, else pixel = 0. List of array(s) (n_freqs, n_times).
+        - binary_mat  : (np.array) Binary matrix results of pixel-wise t-tests. Pixel = 1 when tstatistic > tcritical, else pixel = 0. 
+                                   List of array(s) (n_freqs, n_times).
         '''
 
-        if alternative == 'two-sided': 
+        if alternative == 'two-sided': # return positive and negative t-critical for two-sided hypothesis test 
             return [(tfr_tstats>self.compute_tcritical()).astype(int), (tfr_tstats<np.negative(self.compute_tcritical())).astype(int)]
 
-        elif alternative == 'greater':
+        elif alternative == 'greater': # return positive t-critical for one-sided hypothesis test 
             return [(tfr_tstats>self.compute_tcritical(tails=1,alternative='greater')).astype(int)]
 
-        elif alternative == 'less':
+        elif alternative == 'less': # return negative t-critical for one-sided hypothesis test 
             return [(tfr_tstats<self.compute_tcritical(tails=1,alternative='less')).astype(int)] 
         else: 
             raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {alternative}')
-    
-    # def expand_tfr_indices(self):
-    #     '''
-    #     Create list of tfr pixel indices for parallelized tfr_regression.
 
-    #     Returns:
-    #     - iter_tup : (list) Time-frequency indices for all pixels in tfr_data. List of tuples [(freq_x_index,freq_y_index),(time_x_index,time_y_index)]        
-    #     '''
-
-    #     return list(map(tuple,np.unravel_index(np.dstack(([*np.indices(self.tfr_dims)])),np.product(self.tfr_dims)
-    #                         )[0].reshape(np.product(np.dstack(([*np.indices(self.tfr_dims)])).shape[:2]),-1)))
-
-    # def make_pixel_df(self,epoch_data,permuted=False):
-    #     '''
-    #     Format input data for pixel regression.  input data. Make pixel-level (frequency x timepoint) dataframe. Add tfr power data for single pixel to predictor_df. 
-
-    #     Args:
-    #     - epoch_data : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or'less'. Default is 'two-sided'. Array of 1d integers or floats (n_epochs,).
-        
-    #     Returns:
-    #     - pixel_df   : (pd.DataFrame) Pixel regression input dataframe containing power epochs and task-based behavioral regressor data (dtype=int/float/pd.Categorical). 
-    #                                   DataFrame of (n_epochs, n_regressors+1). 
-        
-    #     ##### to-do add docstring info for permuted kwargs
-    #     '''
-        
-    #     if permuted: ###### make clear that this permanently updates predictor data!!!!
-    #         self.predictor_data[self.permute_var] = np.random.permutation(self.predictor_data[self.permute_var].values)
-    #         return self.predictor_data.assign(pow=epoch_data)
-    #     else: 
-    #         return self.predictor_data.assign(pow=epoch_data) 
-
-###### UNTESTED PERMUTATION FUNCTIONS!!!
-
-    def compute_null_cluster_stats(self,num_permutations=None):
+    def compute_null_cluster_stats(self, num_permutations, alternative='two-sided'):
 
         '''
-        To-do add docstring & test
+        Compute null distribution (length = num_permutations) of maximum cluster statistics by running tfr regressions with permuted predictor of interest. 
+        Note: only the predictor of interest (self.permute_var) is permuted. We recommend only permuting the predictor of interest so your results are not
+              confounded by covariates. 
 
         Args:
-        - null_cluster_distribution : (list) 
+        - num_permutations   : (int) Number of permutation tests to perform. For every permutation iteration, predictor of interest is randomly permuted. 
+        - alternative        : (str) Type of hypothesis test for t-distribution. Must be 'two-sided', 'greater', 'less'. Default is 'two-sided'.
+
+        Returns:
+        - null_cluster_stats : (list) List of maximum cluster statistics. If alternative = 'two-sided', returns two lists (positive & negative cluster stats).
+                                    If alternative = 'greater' or 'less', returns one list with positive or negative cluster stats (length = num_permutations).  
         '''
+        
+        # run num_permutations repetitions of permuted_tfr_regression and using a generator expression to output a single generator object. 
+        null_tstat_generator = (self.permuted_tfr_regression() for _ in range(num_permutations)) # generator saves memory and improves efficiency. 
 
-        #### for every permutation:
-            # permute predictor of interest, then make pixel df 
-            # run tfr regression & extract permutation t stats 
-            # find max cluster statistics for permutation  
+        # Compute the maximum cluster statistics for each permutation by iterating through generator object and evaluating every permuted_tfr_regression. 
+        permuted_cluster_stats = [self.max_tfr_cluster(tstat_gen,output='cluster_stat') for tstat_gen in null_tstat_generator]
 
-        null_tstat = Parallel(n_jobs=-1, verbose=5)(delayed
-                                            (self.permuted_tfr_regression(output='cluster_stat'))(self.permuted_tfr_regression() for n in range(num_permutations)))
-        return null_cluster_distribution
+        # Return list of null maximum cluster statistics for each 
+        if alternative == 'two-sided': 
+            # Returns the positive and negative null distributions as nested lists. First element is always the positive null cluster stats. 
+            return [[null_stat[0]['cluster_stat'] for null_stat in permuted_cluster_stats], [null_stat[1]['cluster_stat'] for null_stat in permuted_cluster_stats]]        
+
+        elif (alternative == 'greater') | (alternative == 'less'):
+            # Returns the null cluster stat distribution as a list. If alternative = 'greater', cluster stats are positive. If 'less', cluster stats are negative. 
+            return [null_stat[0]['cluster_stat'] for null_stat in permuted_cluster_stats]
+
+        else: 
+            raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {alternative}')
 
 
     def permuted_tfr_regression(self,n_jobs=-1,verbose=0):
+
         '''
-        Run tfr regression for single permutation
-        
+        Run pixel-wise tfr regression with predictor data permuted with respect to predictor of interest (self.permute_var). Covariates are not permuted.
+
         Args:
-        - perm_tstats : (np.array)
+        - n_jobs  : (int) Number of CPUs used to run pixel-wise regressions in parallel. Default is -1 (use all available CPUs)
+        - verbose : (int) Verbosity of parallelization function. Default is 0 (minimum progress messages printed). Minimal verbosity recommended for speed. 
+        
+        Returns:
+        - permuted_tstats : (np.array) Matrix of null t-statistics from permuted pixel-wise regressions. Array of tfr_dims (n_freqs,n_times). 
+        '''
+        
+        # Permute predictor data with respect to predictor of interest (permute_var). Predictor data should only be permuted once for entire tfr (not for every pixel). 
+        self.ols_dmatrix[self.permute_var] = np.random.permutation(self.ols_dmatrix[self.permute_var].values)
+
+        # Run Parallelized pixel-wise regressions across 1d tfr_data expanded to shape (1,np.prod(self.tfr_dims)). 
+        # permuted_results is a list of pixel-wise null betas and t-statistics with length = np.prod(self.tfr_dims) 
+        permuted_results = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(self.pixel_regression)(pixel_data)
+                                    for pixel_data in np.resize(self.tfr_data,(self.tfr_data.shape[0],np.prod(self.tfr_dims))).T) 
+        
+        # extract only permuted_tstats from all pixel_regression outputs
+        _,permuted_tstats = list(zip(*permuted_results))
+        
+        # return permuted tstatistics as 2D array (shape = tfr_dims) to compute null tfr cluster statistics  
+        return np.resize(np.array(permuted_tstats), (self.tfr_data.shape[1],self.tfr_data.shape[2]))
+
+    def cluster_significance_test(self, max_cluster_data, null_distribution, alternative='two-sided'):
 
         '''
+        Compute non-parametric pvalue of maximum tfr cluster statistic from distribution of null permutation distribution.
 
-        permuted_results = Parallel(n_jobs=n_jobs, verbose=verbose)(delayed(self.pixel_regression)(pixel_data,permuted=True)
-                                                            for pixel_data in np.resize(self.tfr_data,(self.tfr_data.shape[0],np.prod(self.tfr_dims))).T) 
-        
-        _,perm_tstats = list(zip(*permuted_results))
-        
-        return np.resize(np.array(perm_tstats), (self.tfr_data.shape[1],self.tfr_data.shape[2]))
-
-        # iter_tup = self.expand_tfr_indices()
-
-        # # either precompute pixel_args before passing to parallel, or run all together in loop. - check later!! 
-        # perm_args = [self.make_pixel_df(self.tfr_data[:,freq_idx,time_idx],permuted=True) for freq_idx,time_idx in iter_tup]
-
-        # # Run regression on permuted data + extract tstats only
-
-        # # run pixel permutations in parallel 
-        # permuted_results = Parallel(n_jobs=-1, verbose=5)(
-        #                 delayed(self.pixel_regression)(args)
-        #                     for args in perm_args)      
-        
-        # # preallocate np arrays for betas + tstats
-        # perm_tstats = np.zeros((self.tfr_dims))
-
-        # # expanded_results is a list of tuples (beta,tstat) for every pixel 
-        # for count,(freq_idx,time_idx) in enumerate(iter_tup):
-        #     perm_tstats[freq_idx,time_idx] = permuted_results[count][1]
-        
-        # yield perm_tstats
-
-    # def cluster_significance_test(self, null_distribution,max_cluster_stat,alpha=0.05,alternative='two-sided'):
-        '''
-        Compute non-param etric pvalue from cluster permutation data 
-        
         Args:
-         - alpha (float): Significance level. Default is 0.05.
-         
-        '''
-        # null_df = pd.concat([pd.DataFrame(dict,index=[0]) for dict in null_distribution]).reset_index(drop=True)
-        # null_df['sign'] = ['positive' if row.cluster_stat > 0 else 'negative' for row in null_df.iterrows()]
-        # for sign in null_df.sign.unique(): #### one loop option 
-        # for cluster in max_cluster_stat: ### another loop option
-        #     null_max_clusters = null_df.cluster_stat[null_df.sign == sign]
-
+        - max_cluster_data  : (list) Real tfr cluster data. If alternative = 'two-sided', len = 2. Else, length = 1. List of dict(s).
+        - null_distribution : (list) Null cluster statistics from permutations. List of len=num_permutations. If alternative='two-sided', two nested lists
+        - alternative       : (str)  Alternate hypothesis for t-test. Must be 'two-sided','greater', or 'less'. Default is 'two-sided'.
         
-    #     return cluster_pvalue
+        Returns:
+        - cluster_pvalue    : (list) P-value(s) for clusters in max_cluster_data (# null_stats > cluster_stat)/num permutations) List of float(s). 
+        '''
+
+        cluster_pvalue = []
+        # Iterate through real max cluster statistics info and null distribution simultaneously
+        for cluster, null_stats in list(zip(max_cluster_data,null_distribution)): # cluster_stat and null_stats should have the same sign
+            # check whether sign of cluster_stat and null_stats is the same
+            if np.sign(cluster['cluster_stat']) == np.sign(null_stats[0]): 
+                # pvalue = (number of null stats more extreme than observed maximum clustre statistic)/(number of permutations)
+                pval = np.sum(np.abs(np.array(null_stats)) > np.abs(cluster['cluster_stat']))/len(null_stats) 
+                cluster_pvalue.append(pval) # add pval to cluster_pvalue list
+            else: # if the sign of the max cluster data is not the same as the corresponding null distribution, raise an error 
+                raise ValueError('Signs of max cluster stats and null distributions do not align') 
+        return cluster_pvalue
