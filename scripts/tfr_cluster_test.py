@@ -32,7 +32,7 @@ class TFR_Cluster_Test(object):
     **To-do: fill in methods info
     '''
 
-    def __init__(self, tfr_data, predictor_data, permute_var, ch_name, **kwargs):
+    def __init__(self, tfr_data, predictor_data, permute_var, **kwargs):
 
         '''
         Args:
@@ -45,7 +45,7 @@ class TFR_Cluster_Test(object):
 
         self.tfr_data        = tfr_data  # single electrode tfr data
         self.tfr_dims        = self.tfr_data.shape[1:] # time-frequency dims of electrode data (n_freqs x n_times)
-        self.ch_name         = ch_name # channel name for single electrode tfr data
+        # self.ch_name         = ch_name # channel name for single electrode tfr data
         self.predictor_data  = predictor_data # single subject behav data
         self.permute_var     = permute_var # variable to permute in regression model 
         self.ols_dmatrix     = pd.get_dummies(predictor_data,drop_first=True) # converts only categorical variables into one dummy coded vector

@@ -108,18 +108,18 @@ def prepare_anat_dic(roi, file_path):
     return anat_dic
 
 
-def run_permutation_test(cluster_test, num_permutations):
-    def permutation_test(cluster_test):
-        permuted_cluster_test = cluster_test.permute_predictor()  # Permute predictor variable
-        _, tstats = permuted_cluster_test.tfr_multireg()  # Run regression on permuted data
-        cluster_stat = cluster_test.max_tfr_cluster(tstats, output='cluster_stat')  # Get cluster statistics
-        del permuted_cluster_test, tstats  # Delete objects to free up memory
-        return cluster_stat
+# def run_permutation_test(cluster_test, num_permutations):
+#     def permutation_test(cluster_test):
+#         permuted_cluster_test = cluster_test.permute_predictor()  # Permute predictor variable
+#         _, tstats = permuted_cluster_test.tfr_multireg()  # Run regression on permuted data
+#         cluster_stat = cluster_test.max_tfr_cluster(tstats, output='cluster_stat')  # Get cluster statistics
+#         del permuted_cluster_test, tstats  # Delete objects to free up memory
+#         return cluster_stat
 
-    # Run permutation tests in parallel
-    perm_cluster_list = Parallel(n_jobs=-1, verbose=12)(
-        delayed(permutation_test)(cluster_test) for _ in range(num_permutations)
-    )
-    return perm_cluster_list
+#     # Run permutation tests in parallel
+#     perm_cluster_list = Parallel(n_jobs=-1, verbose=12)(
+#         delayed(permutation_test)(cluster_test) for _ in range(num_permutations)
+#     )
+#     return perm_cluster_list
 
   
