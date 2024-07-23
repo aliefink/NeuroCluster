@@ -2,6 +2,7 @@ from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 
 def subset_channels(data, ch_names):
@@ -75,16 +76,14 @@ def prepare_anat_dic(roi, file_path):
     '''
     Prepare a dictionary mapping each channel to its anatomical region.
 
-    Parameters
-    ----------
+    Args:
     roi : str
         Region of interest (e.g., 'ofc', 'hippocampus', etc.).
 
     file_path : str
         Path to the file containing the anatomical information. 
 
-    Returns
-    -------
+    Returns:
     dict
         Dictionary mapping each channel to its anatomical region.
 
@@ -122,4 +121,15 @@ def run_permutation_test(cluster_test, num_permutations):
     )
     return perm_cluster_list
 
+def create_directory(directory_path):
+    """Create a directory if it doesn't exist."""
+    if not os.path.exists(directory_path):
+        os.makedirs(directory_path)
+
+
+def save_plot_to_pdf(fig, directory, filename):
+    """Save a plot to the specified directory with the given filename."""
+    filepath = os.path.join(directory, filename)
+    fig.savefig(filepath, dpi=300,bbox_inches='tight')
+    plt.close(fig)  # Close the figure to avoid display and memory issues
   

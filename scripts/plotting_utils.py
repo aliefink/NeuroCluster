@@ -31,8 +31,7 @@ def plot_beta_coef(betas, cluster_test):
         control_variables = [var for var in beh_variables if var != cluster_test.permute_var] 
         control_variables_str = ", ".join(control_variables)
         plt.title(f'{cluster_test.ch_name} encoding {cluster_test.permute_var} \ncontrolling for {control_variables_str}')
-    plt.show()
-
+    plt.close(fig) 
     return fig
     
 
@@ -48,6 +47,7 @@ def plot_tstats(tstats, cluster_test):
     - None: displays a plot of the t statistics.
 
     """
+
     fig = plt.figure(figsize=(4,4))
     
     plt.imshow(tstats, interpolation = 'Bicubic',cmap='Spectral_r', aspect='auto',origin='lower') 
@@ -63,8 +63,7 @@ def plot_tstats(tstats, cluster_test):
         control_variables = [var for var in beh_variables if var != cluster_test.permute_var] 
         control_variables_str = ", ".join(control_variables)
         plt.title(f'{cluster_test.ch_name} encoding {cluster_test.permute_var} \ncontrolling for {control_variables_str}')
-    plt.show()
-
+    plt.close(fig) 
     return fig
 
 def plot_clusters(tstat_threshold,alternative='two-sided'):
@@ -95,7 +94,6 @@ def plot_clusters(tstat_threshold,alternative='two-sided'):
                 axs[i].set_xlabel('Time (ms)')
                 axs[i].set_title(f'T Statistic \n Below -Threshold')
             plt.tight_layout()
-        plt.show()
     elif alternative == 'greater':
         plt.imshow(tstat_threshold[0], interpolation = 'Bicubic',cmap='Reds', aspect='auto',origin='lower')
         plt.ylabel('Frequency (Hz)')
@@ -107,8 +105,7 @@ def plot_clusters(tstat_threshold,alternative='two-sided'):
         plt.ylabel('Frequency (Hz)')
         plt.xlabel('Time (ms)')
         plt.title('T Statistic \n Below -Threshold')
-        plt.show()
-    
+    plt.close(fig) 
     return fig
 
 
@@ -152,7 +149,6 @@ def plot_max_clusters(max_cluster_data, tstats):
                 axs[i].set_xlabel('Time')
                 axs[i].set_title(f'Negative cluster')
             plt.tight_layout()
-        plt.show()
     else:
 
         # Initialize an array the same shape as the tstat
@@ -176,12 +172,11 @@ def plot_max_clusters(max_cluster_data, tstats):
             plt.ylabel('Freq')
             plt.xlabel('Time')
             plt.title(f'Negative cluster')
-        plt.show() 
+    plt.close(fig) 
+    return fig
 
-        return fig
 
-
-def plot_null_distribution(null_cluster_distribution, max_cluster_data, axs=None):
+def plot_null_distribution(null_cluster_distribution, max_cluster_data):
     """
     Plots the null distribution of the cluster permutation test.
 
@@ -207,8 +202,8 @@ def plot_null_distribution(null_cluster_distribution, max_cluster_data, axs=None
         else:
             axs[i].set_title(f' Null Distribution\n Negative Cluster')
     plt.tight_layout()
-    plt.show()
 
+    plt.close(fig) 
     return fig
 
 # plot all results in one grid using each of the above functions
