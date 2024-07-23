@@ -15,7 +15,7 @@ def plot_beta_coef(betas, cluster_test):
     - None: displays a plot of the beta coefficients.
 
     """
-    plt.figure(figsize=(4,4))
+    fig = plt.figure(figsize=(4,4))
 
     plt.imshow(betas, interpolation = 'Bicubic',cmap='Spectral_r', aspect='auto',origin='lower') 
     cbar = plt.colorbar()
@@ -33,6 +33,8 @@ def plot_beta_coef(betas, cluster_test):
         plt.title(f'{cluster_test.ch_name} encoding {cluster_test.permute_var} \ncontrolling for {control_variables_str}')
     plt.show()
 
+    return fig
+    
 
 def plot_tstats(tstats, cluster_test):
     """
@@ -46,7 +48,7 @@ def plot_tstats(tstats, cluster_test):
     - None: displays a plot of the t statistics.
 
     """
-    plt.figure(figsize=(4,4))
+    fig = plt.figure(figsize=(4,4))
     
     plt.imshow(tstats, interpolation = 'Bicubic',cmap='Spectral_r', aspect='auto',origin='lower') 
     cbar = plt.colorbar()
@@ -63,6 +65,8 @@ def plot_tstats(tstats, cluster_test):
         plt.title(f'{cluster_test.ch_name} encoding {cluster_test.permute_var} \ncontrolling for {control_variables_str}')
     plt.show()
 
+    return fig
+
 def plot_clusters(tstat_threshold,alternative='two-sided'):
     """
     Plots clusters based on pixels with significant t-statistics for regressor of interest.
@@ -76,7 +80,6 @@ def plot_clusters(tstat_threshold,alternative='two-sided'):
     - None: displays a plot of the significant t statistics.
 
     """
-
     if alternative == 'two-sided':
         fig, axs = plt.subplots(1,2,figsize=(8, 4))
 
@@ -105,6 +108,8 @@ def plot_clusters(tstat_threshold,alternative='two-sided'):
         plt.xlabel('Time (ms)')
         plt.title('T Statistic \n Below -Threshold')
         plt.show()
+    
+    return fig
 
 
 def plot_max_clusters(max_cluster_data, tstats):
@@ -173,6 +178,8 @@ def plot_max_clusters(max_cluster_data, tstats):
             plt.title(f'Negative cluster')
         plt.show() 
 
+        return fig
+
 
 def plot_null_distribution(null_cluster_distribution, max_cluster_data, axs=None):
     """
@@ -202,6 +209,8 @@ def plot_null_distribution(null_cluster_distribution, max_cluster_data, axs=None
     plt.tight_layout()
     plt.show()
 
+    return fig
+
 # plot all results in one grid using each of the above functions
 
 def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_cluster_distribution, tstats, tstat_threshold):
@@ -226,6 +235,5 @@ def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_cluster
     max_cluster_plot= plot_max_clusters(max_cluster_data, tstats)
     null_distribution_plot = plot_null_distribution(null_cluster_distribution, max_cluster_data)
 
-    return beta_plot, tstat_plot, cluster_plot, max_cluster_plot, null_distribution_plot
-
+    return beta_plot,tstat_plot,cluster_plot,max_cluster_plot,null_distribution_plot
 
