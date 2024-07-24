@@ -1,17 +1,9 @@
 import numpy as np
 import pandas as pd
-from scipy.ndimage import label 
 from scipy.stats import  t
 from joblib import Parallel, delayed
 import statsmodels.api as sm 
 from scipy.ndimage import label 
-import statsmodels.formula.api as smf
-import tqdm
-from scipy.ndimage import label 
-import time
-import inspect
-
-
 
 class TFR_Cluster_Test(object):
 

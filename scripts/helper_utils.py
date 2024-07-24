@@ -1,4 +1,3 @@
-from joblib import Parallel, delayed
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -105,21 +104,6 @@ def prepare_anat_dic(roi, file_path):
     anat_dic = {f'{subj_id}':roi_info_df.reref_ch_names[roi_info_df.subj_id == subj_id].unique().tolist() for subj_id in roi_subj_ids}
 
     return anat_dic
-
-
-# def run_permutation_test(cluster_test, num_permutations):
-#     def permutation_test(cluster_test):
-#         permuted_cluster_test = cluster_test.permute_predictor()  # Permute predictor variable
-#         _, tstats = permuted_cluster_test.tfr_multireg()  # Run regression on permuted data
-#         cluster_stat = cluster_test.max_tfr_cluster(tstats, output='cluster_stat')  # Get cluster statistics
-#         del permuted_cluster_test, tstats  # Delete objects to free up memory
-#         return cluster_stat
-
-#     # Run permutation tests in parallel
-#     perm_cluster_list = Parallel(n_jobs=-1, verbose=12)(
-#         delayed(permutation_test)(cluster_test) for _ in range(num_permutations)
-#     )
-#     return perm_cluster_list
 
 def create_directory(directory_path):
     """Create a directory if it doesn't exist."""

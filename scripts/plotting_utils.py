@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd 
 import matplotlib.pyplot as plt
-import mne 
 
 def plot_beta_coef(betas, cluster_test):
     """

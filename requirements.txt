@@ -1,0 +1,13 @@
+joblib==1.2.0
+matplotlib==3.6.3
+numpy==1.23.5
+pandas==1.5.3
+scipy==1.10.0
+statsmodels==0.13.5
+tqdm==4.64.1
+ipykernel==6.21.0
+ipywidgets==8.0.4
+ipython==8.12.3
+jupyter_client==8.0.2
+jupyter_core==5.2.0
+notebook
