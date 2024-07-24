@@ -188,13 +188,13 @@ class TFR_Cluster_Test(object):
         '''
 
         if alternative == 'two-sided': # return positive and negative t-critical for two-sided hypothesis test 
-            return [(tfr_tstats>self.compute_tcritical()).astype(int), (tfr_tstats<np.negative(self.compute_tcritical())).astype(int)]
+            return [(tfr_tstats>=self.compute_tcritical()).astype(int), (tfr_tstats<=np.negative(self.compute_tcritical())).astype(int)]
 
         elif alternative == 'greater': # return positive t-critical for one-sided hypothesis test 
-            return [(tfr_tstats>self.compute_tcritical(tails=1,alternative='greater')).astype(int)]
+            return [(tfr_tstats>=self.compute_tcritical(alternative='greater')).astype(int)]
 
         elif alternative == 'less': # return negative t-critical for one-sided hypothesis test 
-            return [(tfr_tstats<self.compute_tcritical(tails=1,alternative='less')).astype(int)] 
+            return [(tfr_tstats<=self.compute_tcritical(alternative='less')).astype(int)] 
         else: 
             raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {alternative}')
 

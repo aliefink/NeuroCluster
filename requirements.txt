@@ -10,4 +10,5 @@ ipywidgets==8.0.4
 ipython==8.12.3
 jupyter_client==8.0.2
 jupyter_core==5.2.0
+seaborn==0.13.2
 notebook

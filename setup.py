@@ -1,5 +1,7 @@
 from setuptools import find_packages, setup
 
+# https://setuptools.pypa.io/en/latest/references/keywords.html
+
 github_url = 'https://github.com/aliefink/NeuroCluster'
 
 authors = ['Alexandra Fink','Christina Maher','Salman Qasim','Ignacio Saez']

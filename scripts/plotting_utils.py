@@ -1,26 +1,36 @@
 import numpy as np
 import pandas as pd 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
-def plot_beta_coef(betas, cluster_test):
+
+
+def plot_beta_coef(betas, cluster_test,figsize=(6,4),dpi=150,sns_context='talk',cmap='Spectral_r'):
     """
     Plots the beta coefficients for regressor of interest from a linear regression. 
 
     Args:
-    - betas (np.array): 2D array of beta coefficients (frequency x time) from a linear regression.
-    - cluster_test (NeuroCluster object): object containing the model specifications. 
+    - betas : (np.array): 2D array of beta coefficients (frequency x time) from a linear regression.
+    - cluster_test : (NeuroCluster object): object containing the model specifications. 
+    - min_max : 
+    - figsize : 
+    - dpi 
+    - sns_context
 
     Returns:
     - None: displays a plot of the beta coefficients.
 
     """
-    fig = plt.figure(figsize=(4,4))
+    sns.set_context(sns_context)
+    fig = plt.figure(figsize=figsize,dpi = dpi)
 
-    plt.imshow(betas, interpolation = 'Bicubic',cmap='Spectral_r', aspect='auto',origin='lower') 
+    plt.imshow(betas, interpolation = 'Bicubic', cmap=cmap, aspect='auto', 
+               origin='lower')
     cbar = plt.colorbar()
-    cbar.set_label('Beta Coefficient')
+    # cbar.set_label(r'$Beta $Coefficient')
+    cbar.set_label(fr'$\beta_{{{cluster_test.permute_var}}}$'+  ' coefficient')
     plt.ylabel('Frequency (Hz)')
-    plt.xlabel('Time')
+    plt.xlabel('Time (ms)')
 
     # make title dynamic depending on whether or not you are controlling for other variables
     if cluster_test.predictor_data.columns.tolist() == [cluster_test.permute_var]:
@@ -34,7 +44,7 @@ def plot_beta_coef(betas, cluster_test):
     return fig
     
 
-def plot_tstats(tstats, cluster_test):
+def plot_tstats(tstats, cluster_test,figsize=(6,4),dpi=150,sns_context='talk',cmap='Spectral_r'):
     """
     Plots the t statistics for the regressor of interest.
 
@@ -46,12 +56,13 @@ def plot_tstats(tstats, cluster_test):
     - None: displays a plot of the t statistics.
 
     """
-
-    fig = plt.figure(figsize=(4,4))
     
-    plt.imshow(tstats, interpolation = 'Bicubic',cmap='Spectral_r', aspect='auto',origin='lower') 
+    sns.set_context(sns_context)
+    fig = plt.figure(figsize=figsize,dpi=dpi)
+    plt.imshow(tstats, interpolation = 'Bicubic', cmap=cmap, aspect='auto', origin='lower')     
+    
     cbar = plt.colorbar()
-    cbar.set_label('T Statistic')
+    cbar.set_label(r'$t-statistic$')
     plt.ylabel('Frequency (Hz)')
     plt.xlabel('Time (ms)')
     # make title dynamic depending on whether or not you are controlling for other variables
@@ -65,7 +76,7 @@ def plot_tstats(tstats, cluster_test):
     plt.close(fig) 
     return fig
 
-def plot_clusters(tstat_threshold,alternative='two-sided'):
+def plot_clusters(tstats,cluster_test,alternative='two-sided',figsize=(8,4),dpi=150,sns_context='talk'):
     """
     Plots clusters based on pixels with significant t-statistics for regressor of interest.
 
@@ -78,37 +89,58 @@ def plot_clusters(tstat_threshold,alternative='two-sided'):
     - None: displays a plot of the significant t statistics.
 
     """
-    if alternative == 'two-sided':
-        fig, axs = plt.subplots(1,2,figsize=(8, 4))
+    
+    sns.set_context(sns_context)
 
+    if alternative == 'two-sided':
+        # binary tstat matrices thresholded by tcritical value
+        tstat_threshold = cluster_test.threshold_tfr_tstat(tstats)
+        tcritical = cluster_test.compute_tcritical()
+
+        fig, axs = plt.subplots(1,2,figsize=figsize,dpi=dpi,constrained_layout=True)
         for i in range(len(tstat_threshold)):
             if i == 0:
                 axs[i].imshow(tstat_threshold[i], interpolation = 'Bicubic',cmap='Reds', aspect='auto',origin='lower')
                 axs[i].set_ylabel('Frequency (Hz)')
                 axs[i].set_xlabel('Time (ms)')
-                axs[i].set_title(f'T Statistic \n Above +Threshold')
+                axs[i].set_title(fr'$t_{{pixel}}>t_{{critical}}={np.round(tcritical,2)}$',fontsize=15)
+            
             else:
                 axs[i].imshow(tstat_threshold[i], interpolation = 'Bicubic',cmap='Blues', aspect='auto',origin='lower')
-                axs[i].set_ylabel('Frequency (Hz)')
                 axs[i].set_xlabel('Time (ms)')
-                axs[i].set_title(f'T Statistic \n Below -Threshold')
-            plt.tight_layout()
+                axs[i].set_title(fr'$t_{{pixel}}<t_{{critical}}={np.negative(np.round(tcritical,2))}$',fontsize=15)
+        
+        fig.suptitle('Threshold Significant Pixels')
+    
     elif alternative == 'greater':
+        # binary tstat matrices thresholded by tcritical value
+        tstat_threshold = cluster_test.threshold_tfr_tstat(tstats)
+        tcritical = cluster_test.compute_tcritical()
+        
+        fig = plt.figure(figsize=figsize,dpi=dpi,constrained_layout=True)
         plt.imshow(tstat_threshold[0], interpolation = 'Bicubic',cmap='Reds', aspect='auto',origin='lower')
         plt.ylabel('Frequency (Hz)')
         plt.xlabel('Time (ms)')
-        plt.title('T Statistic Above +Threshold')
+        plt.title(fr'$t_{{pixel}}>t_{{critical}}={np.round(tcritical,2)}$',fontsize=15)
+        fig.suptitle('Threshold Significant Pixels')
         plt.show()
+    
     elif alternative == 'less':
+        # binary tstat matrices thresholded by tcritical value
+        tstat_threshold = cluster_test.threshold_tfr_tstat(tstats)
+        tcritical = cluster_test.compute_tcritical()
+        fig = plt.figure(figsize=figsize,dpi=dpi,constrained_layout=True)
         plt.imshow(tstat_threshold[0], interpolation = 'Bicubic',cmap='Blues', aspect='auto',origin='lower')
         plt.ylabel('Frequency (Hz)')
         plt.xlabel('Time (ms)')
-        plt.title('T Statistic \n Below -Threshold')
+        plt.title(fr'$t_{{pixel}}<t_{{critical}}={np.negative(np.round(tcritical,2))}$',fontsize=15)
+        fig.suptitle('Threshold Significant Pixels')
+    
     plt.close(fig) 
     return fig
 
 
-def plot_max_clusters(max_cluster_data, tstats):
+def plot_max_clusters(cluster_test,tstats,alternative='two-sided',figsize=(8,4),dpi=150,sns_context='talk',sns_style= 'white'):
     """
     Plots significant clusters (positive and negative).
 
@@ -120,58 +152,92 @@ def plot_max_clusters(max_cluster_data, tstats):
     - None: displays a plot of the maximum cluster(s).
 
     """
+    sns.set_context(sns_context,rc={'axes.linewidth': 1.5})
+    sns.set_style(sns_style)
 
-    if len(max_cluster_data) > 1:
-        fig,axs = plt.subplots(1,2,figsize=(8, 4))
+    # if len(max_cluster_info) > 1:
+    if alternative=='two-sided':
+
+        # Compute the max cluster statistics with expanded output to get 2D cluster coordinates
+        max_cluster_info = cluster_test.max_tfr_cluster(tstats,output='expanded',alternative='two-sided')
+
+        fig,axs = plt.subplots(1,2,figsize=figsize,dpi=dpi)
+
         # Loop through the list of dictionaries
-        for i,cluster in enumerate(max_cluster_data):
-        
+        for i,cluster in enumerate(max_cluster_info):
+
+            # Extract max cluster pixel indices by finding 2D time-freq indices of max cluster 
+            cluster_freqs,cluster_times = np.where(cluster['all_clusters']==cluster['max_label'])
+            
             # Initialize an array the same shape as the tstat
             masked_tstat_plot = np.zeros_like(tstats)
 
-            # Extract the indices from the dictionary
-            freq_start, freq_end = cluster['freq_idx']
-            time_start, time_end = cluster['time_idx']
-
-            # Copy the values from tstat_plot to masked_tstat_plot for the significant cluster range
-            masked_tstat_plot[freq_start:freq_end+1, time_start:time_end+1] = 1
+            # Copy the values from tstat_plot to masked_tstat_plot for the significant cluster 
+            masked_tstat_plot[cluster_freqs, cluster_times] = 1
             
             if cluster['cluster_stat'] > 0:
-            # Plot the masked tstat plot
-                axs[i].imshow(masked_tstat_plot, interpolation='bicubic', cmap='binary', aspect='auto', origin='lower')
-                axs[i].set_ylabel('Freq')
-                axs[i].set_xlabel('Time')
-                axs[i].set_title(f'Positive cluster')
-            elif cluster['cluster_stat'] < 0:
-                axs[i].imshow(masked_tstat_plot, interpolation='bicubic', cmap='binary', aspect='auto', origin='lower')
-                axs[i].set_ylabel('Freq')
-                axs[i].set_xlabel('Time')
-                axs[i].set_title(f'Negative cluster')
-            plt.tight_layout()
-    else:
+                # Plot the masked tstat plot
+                axs[i].imshow(masked_tstat_plot, interpolation='bicubic', cmap='Reds', aspect='auto', origin='lower')
+                axs[i].set_ylabel('Frequency (Hz)')
+                axs[i].set_xlabel('Time (ms)')
+                axs[i].text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
+                    r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[0]["cluster_stat"],2)}']),color='k',fontsize=11,
+                    va='top',ha='right',transform=axs[i].transAxes)                
+                axs[i].set_title(r'Positive TFR Cluster',fontsize=16)
+                axs[i].tick_params(length=0) 
 
+            elif cluster['cluster_stat'] < 0:
+                axs[i].imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
+                # axs[i].set_ylabel('Frequency (Hz)')
+                axs[i].set_xlabel('Time (ms)')
+                axs[i].text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
+                    r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[1]["cluster_stat"],2)}']),color='k',fontsize=11,
+                    va='top',ha='right',transform=axs[i].transAxes)
+                axs[i].set_title(r'Negative TFR Cluster',fontsize=16)
+                axs[i].tick_params(length=0) 
+
+
+        # fig.suptitle(r'Clusters of Significant Pixels',fontsize=20)
+    
+    else:
+        # Compute the max cluster statistics with expanded output to get 2D cluster coordinates
+        max_cluster_info = cluster_test.max_tfr_cluster(tstats,output='expanded',alternative=alternative)
+        
         # Initialize an array the same shape as the tstat
         masked_tstat_plot = np.zeros_like(tstats)
 
-        # Extract the indices from the dictionary
-        freq_start, freq_end = max_cluster_data[0]['freq_idx']
-        time_start, time_end = max_cluster_data[0]['time_idx']
+        # Extract max cluster pixel indices by finding 2D time-freq indices of max cluster 
+        cluster_freqs,cluster_times = np.where(max_cluster_info[0]['all_clusters']==max_cluster_info[0]['max_label'])
 
-        # Copy the values from tstat_plot to masked_tstat_plot for the significant cluster range
-        masked_tstat_plot[freq_start:freq_end+1, time_start:time_end+1] = 1
+        # Copy the values from tstat_plot to masked_tstat_plot for the significant cluster 
+        masked_tstat_plot[cluster_freqs, cluster_times] = 1
 
-        if max_cluster_data[0]['cluster_stat'] > 0:
+        if max_cluster_info[0]['cluster_stat'] > 0:
+            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi)
             # Plot the masked tstat plot
-            plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='binary', aspect='auto', origin='lower')
-            plt.ylabel('Freq')
-            plt.xlabel('Time')
-            plt.title(f'Positive cluster')
-        elif max_cluster_data[0]['cluster_stat'] < 0:
-            plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='binary', aspect='auto', origin='lower')
-            plt.ylabel('Freq')
-            plt.xlabel('Time')
-            plt.title(f'Negative cluster')
+            plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Reds', aspect='auto', origin='lower')
+            plt.xlabel('Frequency (Hz)')
+            plt.ylabel('Time (ms)')
+            ax.text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
+                    r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[0]["cluster_stat"],2)}']),color='k',fontsize=11,
+                    va='top',ha='right',transform=ax.transAxes)
+            # plt.title(r'$Cluster_{{positive}}$'+ fr'$= \max \sum_ t_{{pixel}}$',fontsize=15)
+            plt.title(r'Positive TFR Cluster',fontsize=16)
+            ax.tick_params(length=0) 
+
+        elif max_cluster_info[0]['cluster_stat'] < 0:
+            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi)
+            plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
+            plt.ylabel('Frequency (Hz)')
+            plt.xlabel('Time (ms)')
+            ax.text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
+                    r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[0]["cluster_stat"],2)}']),color='k',fontsize=11,
+                    va='top',ha='right',transform=ax.transAxes)
+            plt.title(r'Negative TFR Cluster',fontsize=16)
+            ax.tick_params(length=0) 
+
     plt.close(fig) 
+
     return fig
 
 
