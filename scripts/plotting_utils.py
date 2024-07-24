@@ -292,10 +292,10 @@ def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,f
             axs[i].set_title(f' Null Distribution\n Negative Cluster')
 
             if len(pvalue) == 1:
-                axs[i].text(0.95,0.95,('').join([r'$p-value = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
+                axs[i].text(0.95,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
             else:
-                axs[i].text(0.95,0.95,('').join([r'$p-value = $',f'{np.round(pvalue[1],4)}']),color='k',fontsize=11,
+                axs[i].text(0.95,0.95,('').join([r'$p = $',f'{np.round(pvalue[1],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
     plt.tight_layout()
     plt.close(fig) 
@@ -320,8 +320,8 @@ def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_cluster
     """
     beta_plot = plot_beta_coef(betas, cluster_test)
     tstat_plot = plot_tstats(tstats, cluster_test)
-    cluster_plot = plot_clusters(tstat_threshold)
-    max_cluster_plot= plot_max_clusters(max_cluster_data, tstats, alternative='two-sided')
+    cluster_plot = plot_clusters(tstats,cluster_test)
+    max_cluster_plot= plot_max_clusters(cluster_test,tstats)
     null_distribution_plot = plot_null_distribution(null_cluster_distribution, max_cluster_data,cluster_pvalue)
 
     return beta_plot,tstat_plot,cluster_plot,max_cluster_plot,null_distribution_plot
