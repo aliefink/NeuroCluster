@@ -22,6 +22,15 @@ class TFR_Cluster_Test(object):
     Methods
     ----------
     **To-do: fill in methods info
+    tfr_regression
+    pixel_regression
+    max_tfr_cluster
+    compute_tcritical
+    threshold_tfr_tstat
+    compute_null_cluster_stats
+    permuted_tfr_regression
+    cluster_significance_test
+
     '''
 
     def __init__(self, tfr_data, predictor_data, permute_var, ch_name, **kwargs):
@@ -63,7 +72,7 @@ class TFR_Cluster_Test(object):
         return np.resize(np.array(tfr_betas),(self.tfr_data.shape[1],self.tfr_data.shape[2])), np.resize(np.array(tfr_tstats),
                                                                                                          (self.tfr_data.shape[1],self.tfr_data.shape[2]))
 
-    def pixel_regression(self,pixel_data): #def pixel_regression(self,pixel_data,permuted=False):
+    def pixel_regression(self,pixel_data):
         
         '''        
         Fit pixel-wise univariate or multivariate OLS regression model and extract beta coefficient and t-statistic for predictor of interest (self.permute_var). 
@@ -75,13 +84,6 @@ class TFR_Cluster_Test(object):
         - pixel_beta : (np.array) Beta coefficient for predictor of interest from pixel-wise regression. Array of 1d float (1,)
         - pixel_tval : (np.array) Observed t-statistic for predictor of interest from pixel-wise regression. Array of 1d float (1,)
         '''
-
-        # if permuted: ###### make clear that this permanently updates ols_dmatrix data!!!!
-        #     self.ols_dmatrix[self.permute_var] = np.random.permutation(self.ols_dmatrix[self.permute_var].values)
-        #     pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
-        
-        # else: 
-        #     pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
         
         # Fit pixel-wise regression model. If called in permuted_tfr_regressions, ols_dmatrix.permute_var is permuted once per tfr, not for each pixel.
         pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
@@ -188,7 +190,7 @@ class TFR_Cluster_Test(object):
         '''
 
         if alternative == 'two-sided': # return positive and negative t-critical for two-sided hypothesis test 
-            return [(tfr_tstats>=self.compute_tcritical()).astype(int), (tfr_tstats<=np.negative(self.compute_tcritical())).astype(int)]
+            return [(tfr_tstats>=self.compute_tcritical(alternative='two-sided')).astype(int), (tfr_tstats<=np.negative(self.compute_tcritical(alternative='two-sided'))).astype(int)]
 
         elif alternative == 'greater': # return positive t-critical for one-sided hypothesis test 
             return [(tfr_tstats>=self.compute_tcritical(alternative='greater')).astype(int)]

@@ -156,7 +156,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
     - max_cluster_data (list): List of dictionaries containing the significant cluster information.
     - tstats (np.array): 2D array of t statistics (frequency x time) corresponding with the beta coefficients for a linear regression.
     - alternative (str): Type of test. Default is 'two-sided' but can also be 'greater' or 'less'.
-    - which_cluster (str): 
+    - which_cluster (str): For two-sided tests, indicate which clusters to plot: 'all', 'positive', or 'negative'. Default is 'all'. 
     - figsize (tuple): size of the figure. Default is (8,4).
     - dpi (int): dots per inch for the plot. Default is 150.
     - sns_context (str): seaborn context for the plot. Default is 'talk'.
@@ -174,7 +174,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
 
         if which_cluster=='all':
 
-            fig,axs = plt.subplots(1,len(max_cluster_info),figsize=figsize,dpi=dpi)
+            fig,axs = plt.subplots(1,len(max_cluster_info),figsize=figsize,dpi=dpi,constrained_layout=True)
 
             # Loop through the list of dictionaries
             for i,cluster in enumerate(max_cluster_info):
@@ -219,7 +219,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
             # Copy the values from tstat_plot to masked_tstat_plot for the significant cluster 
             masked_tstat_plot[cluster_freqs, cluster_times] = 1
             
-            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi)
+            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
 
             # Plot the masked tstat plot
             ax.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Reds', aspect='auto', origin='lower')
@@ -243,7 +243,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
             masked_tstat_plot[cluster_freqs, cluster_times] = 1
             
             # Plot the masked tstat plot
-            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi)
+            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
 
             ax.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
             ax.set_ylabel('Frequency (Hz)')
@@ -268,7 +268,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
         masked_tstat_plot[cluster_freqs, cluster_times] = 1
 
         if max_cluster_info[0]['cluster_stat'] > 0:
-            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi)
+            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
             
             # Plot the masked tstat plot
             plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Reds', aspect='auto', origin='lower')
@@ -280,7 +280,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
             plt.title(r'Positive TFR Cluster',fontsize=16)
 
         elif max_cluster_info[0]['cluster_stat'] < 0:
-            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi)
+            fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
             plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
             plt.ylabel('Frequency (Hz)')
             plt.xlabel('Time (ms)')
@@ -294,7 +294,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
     return fig
 
 
-def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,figsize=(10,4),dpi=150,sns_context='talk'):
+def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,figsize=(9,4),dpi=150,sns_context='talk'):
     """
     Plots the null distribution of the cluster permutation test.
 
@@ -325,16 +325,16 @@ def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,f
         if cluster['cluster_stat'] > 0:
             axs[i].set_title(f' Null Distribution\n Positive Cluster')
             if len(pvalue) == 1:
-                axs[i].text(0.95,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
+                axs[i].text(0.97,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
                 axs[i].annotate(f'True \nCluster',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
-                                xytext=(7,-25),color='red',
+                                xytext=(7,-45),color='red',
                         fontsize=10,textcoords='offset points')
             else:
-                axs[i].text(0.95,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
+                axs[i].text(0.97,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
                 axs[i].annotate(f'True \nCluster',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
-                                xytext=(7,-25),color='red',fontsize=10,textcoords='offset points')
+                                xytext=(7,-45),color='red',fontsize=10,textcoords='offset points')
         else:
             axs[i].set_title(f' Null Distribution\n Negative Cluster')
 

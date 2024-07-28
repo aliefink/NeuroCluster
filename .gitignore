@@ -6,3 +6,6 @@ scripts/.DS_Store
 .DS_Store
 scripts/__pycache__/*
 /scripts/__pycache__
+.DS_Store
+scripts/__pycache__/plotting_utils.cpython-310.pyc
+scripts/__pycache__/tfr_cluster_test.cpython-310.pyc
