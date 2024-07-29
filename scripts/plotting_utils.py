@@ -81,7 +81,7 @@ def plot_tstats(tstats, cluster_test,figsize=(6,4),dpi=150,sns_context='talk',cm
     plt.close(fig) 
     return fig
 
-def plot_clusters(tstats,cluster_test,alternative='two-sided',figsize=(8,4),dpi=150,sns_context='talk'):
+def plot_clusters(tstats,cluster_test,alternative='two-sided',figsize=(8,4),dpi=125,sns_context='talk'):
     """
     Plots clusters based on pixels with significant t-statistics for regressor of interest.
 
@@ -148,7 +148,7 @@ def plot_clusters(tstats,cluster_test,alternative='two-sided',figsize=(8,4),dpi=
     return fig
 
 
-def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster='all',figsize=(8,4),dpi=150,sns_context='talk'):
+def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster='all',figsize=(8,4),dpi=125,sns_context='talk'):
     """
     Plots significant clusters (positive and negative).
 
@@ -294,7 +294,7 @@ def plot_max_clusters(cluster_test,tstats,alternative='two-sided',which_cluster=
     return fig
 
 
-def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,figsize=(9,4),dpi=150,sns_context='talk'):
+def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,figsize=(9,4),dpi=125,sns_context='talk'):
     """
     Plots the null distribution of the cluster permutation test.
 
@@ -328,24 +328,24 @@ def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,f
                 axs[i].text(0.97,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
                 axs[i].annotate(f'True \nCluster',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
-                                xytext=(7,-45),color='red',
+                                xytext=(7,-25),color='red',
                         fontsize=10,textcoords='offset points')
             else:
                 axs[i].text(0.97,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
                 axs[i].annotate(f'True \nCluster',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
-                                xytext=(7,-45),color='red',fontsize=10,textcoords='offset points')
+                                xytext=(7,-25),color='red',fontsize=10,textcoords='offset points')
         else:
             axs[i].set_title(f' Null Distribution\n Negative Cluster')
 
             if len(pvalue) == 1:
-                axs[i].text(0.2,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
+                axs[i].text(0.25,0.95,('').join([r'$p = $',f'{np.round(pvalue[0],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
                 axs[i].annotate(f'True \nCluster',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
                                 xytext=(-40,-25),color='red',
                         fontsize=10,textcoords='offset points')
             else:
-                axs[i].text(0.2,0.95,('').join([r'$p = $',f'{np.round(pvalue[1],4)}']),color='k',fontsize=11,
+                axs[i].text(0.25,0.95,('').join([r'$p = $',f'{np.round(pvalue[1],4)}']),color='k',fontsize=11,
                     va='top',ha='right', transform=axs[i].transAxes)
                 axs[i].annotate(f'True \nCluster',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
                                 xytext=(-40,-25),color='red',
