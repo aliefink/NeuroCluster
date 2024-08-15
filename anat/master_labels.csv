@@ -1,0 +1,57 @@
+index,subj_id,reref_ch_names,ch_label4roi,ch_type4roi,loc4roi,mni_x,mni_y,mni_z,YBA_1,roi
+0,MS009,lacas1-lacas2,lacas1,anode,left cingulate gyrus c,-2.1719888,31.0604446,-9.5733657,Left cingulate gyrus C,acc
+1,MS009,lacas2-lacas3,lacas2,anode,left cingulate gyrus d,-3.5282358,33.2824315,-4.187506,Left cingulate gyrus D,acc
+2,MS009,lacas3-lacas4,lacas3,anode,left cingulate gyrus e,-4.8466362,35.8617055,0.60008675,Left cingulate gyrus E,acc
+3,MS009,lacas4-lacas5,lacas5,cathode,left cingulate gyrus f,-7.2434828,40.0959818,10.8063324,Left cingulate gyrus F,acc
+4,MS009,lacas5-lacas6,lacas5,anode,left cingulate gyrus f,-7.2434828,40.0959818,10.8063324,Left cingulate gyrus F,acc
+5,MS009,lacas6-lacas7,lacas6,anode,left cingulate gyrus f,-8.4051303,42.2277213,16.1265986,Left cingulate gyrus F,acc
+6,MS009,lacas7-lacas8,lacas7,anode,left superior frontal gyrus 1 a,-9.2973907,44.3260742,21.47339,Left superior frontal gyrus 1 A,dmpfc
+7,MS009,lacas8-lacas9,lacas9,cathode,left superior frontal gyrus 2 c,-11.84104,48.8326168,32.216688,Left superior frontal gyrus 2 C,dmpfc
+8,MS009,lacas9-lacas10,lacas9,anode,left superior frontal gyrus 2 c,-11.84104,48.8326168,32.216688,Left superior frontal gyrus 2 C,dmpfc
+9,MS009,lagit1-lagit2,lagit1,anode,left parahippocampal gyrus a,-14.919074,-3.8806696,-22.959394,Left parahippocampal gyrus A,phg
+10,MS009,lagit2-lagit3,lagit2,anode,left amygdala inferior,-19.785605,-3.0433766,-23.17448,Left amygdala inferior,amy
+11,MS009,lagit3-lagit4,lagit3,anode,left amygdala inferior,-24.624504,-2.5547344,-23.231835,Left amygdala inferior,amy
+12,MS009,lagit4-lagit5,lagit4,anode,left amygdala inferior,-29.868093,-1.62587,-23.291238,Left amygdala inferior,amy
+13,MS009,lagit8-lagit9,lagit9,cathode,left superior middle temporal gyrus a,-55.173443,2.41662332,-23.686744,Left superior middle temporal gyrus A,sts
+14,MS009,lagit9-lagit10,lagit9,anode,left superior middle temporal gyrus a,-55.173443,2.41662332,-23.686744,Left superior middle temporal gyrus A,sts
+15,MS009,laias1-laias2,laias1,anode,left middle short insular gyrus b,-39.467798,13.2168742,-7.8853562,Left middle short insular gyrus B,ains
+16,MS009,laias2-laias3,laias2,anode,left anterior short insular gyrus b,-38.735728,15.1064679,-1.6446236,Left anterior short insular gyrus B,ains
+17,MS009,laias3-laias4,laias3,anode,left anterior short insular gyrus a,-37.544531,17.3166258,3.53289908,Left anterior short insular gyrus A,ains
+18,MS009,laias4-laias5,laias4,anode,left pars opercularis c,-36.663364,19.3056504,9.65236446,Left pars opercularis C,lpfc
+19,MS009,laias6-laias7,laias7,cathode,left middle frontal gyrus 4 b,-34.107916,26.648244,26.5502322,Left middle frontal gyrus 4 B,lpfc
+20,MS009,laias7-laias8,laias7,anode,left middle frontal gyrus 4 b,-34.107916,26.648244,26.5502322,Left middle frontal gyrus 4 B,lpfc
+21,MS009,laias8-laias9,laias9,cathode,left middle frontal gyrus 4 b,-31.57658,30.1497909,37.1732,Left middle frontal gyrus 4 B,lpfc
+22,MS009,laias9-laias10,laias9,anode,left middle frontal gyrus 4 b,-31.57658,30.1497909,37.1732,Left middle frontal gyrus 4 B,lpfc
+23,MS009,laias10-laias11,laias10,anode,left middle frontal gyrus 5 a,-30.631446,32.2996914,42.6353376,Left middle frontal gyrus 5 A,lpfc
+24,MS009,lhpit7-lhpit8,lhpit8,cathode,unknown,-57.301856,-16.943557,-14.122722,Unknown,
+25,MS009,lhpit8-lhpit9,lhpit8,anode,unknown,-57.301856,-16.943557,-14.122722,Unknown,
+26,MS009,lhpit9-lhpit10,lhpit9,anode,left superior middle temporal gyrus b,-62.301285,-17.503689,-13.707014,Left superior middle temporal gyrus B,sts
+27,MS009,lmcms1-lmcms2,lmcms1,anode,left cingulate gyrus i,-3.5188161,10.009329,24.2312949,Left cingulate gyrus I,acc
+28,MS009,lmcms2-lmcms3,lmcms2,anode,left cingulate gyrus i,-4.4502263,12.9765506,29.5138715,Left cingulate gyrus I,acc
+29,MS009,lmcms3-lmcms4,lmcms3,anode,left cingulate gyrus i,-5.4014467,15.8143861,34.2069659,Left cingulate gyrus I,acc
+30,MS009,lmcms4-lmcms5,lmcms4,anode,left superior frontal gyrus 4 a,-6.2168831,18.6826609,39.3402563,Left superior frontal gyrus 4 A,dmpfc
+31,MS009,lmcms7-lmcms8,lmcms8,cathode,left superior frontal gyrus 4 c,-8.6413208,30.2666548,58.6019895,Left superior frontal gyrus 4 C,dmpfc
+32,MS009,lmolf1-lmolf2,lmolf1,anode,left frontal orbital 3 b,-9.6401253,43.8096017,-23.630519,Left frontal orbital 3 B,ofc
+33,MS009,lmolf2-lmolf3,lmolf2,anode,left frontal orbital 3 a,-13.133866,42.8180263,-20.790668,Left frontal orbital 3 A,ofc
+34,MS009,lmolf3-lmolf4,lmolf3,anode,left frontal orbital 3 c,-17.831491,41.2499621,-18.281491,Left frontal orbital 3 C,ofc
+35,MS009,lmolf4-lmolf5,lmolf5,cathode,left frontal orbital 3 d,-26.447293,38.4572408,-12.035154,Left frontal orbital 3 D,ofc
+36,MS009,lmolf5-lmolf6,lmolf5,anode,left frontal orbital 3 d,-26.447293,38.4572408,-12.035154,Left frontal orbital 3 D,ofc
+37,MS009,lpcpp5-lpcpp6,lpcpp6,cathode,left supramarginal gyrus 4 a,-27.510752,-47.904312,36.8486659,Left supramarginal gyrus 4 A,
+38,MS009,lpcpp6-lpcpp7,lpcpp6,anode,left supramarginal gyrus 4 a,-27.510752,-47.904312,36.8486659,Left supramarginal gyrus 4 A,
+39,MS009,lpcpp7-lpcpp8,lpcpp7,anode,left supramarginal gyrus 4 a,-31.532277,-50.393085,38.4765567,Left supramarginal gyrus 4 A,
+40,MS009,lpcpp8-lpcpp9,lpcpp8,anode,left supramarginal gyrus 4 a,-36.039666,-52.542206,39.9660098,Left supramarginal gyrus 4 A,
+41,MS009,lpipm1-lpipm2,lpipm1,anode,left superior temporal gyrus c,-40.33625,-14.311057,-4.9811018,Left superior temporal gyrus C,temporal
+42,MS009,lpipm2-lpipm3,lpipm2,anode,left posterior long insular gyrus b,-39.37741,-12.397746,0.81174298,Left posterior long insular gyrus B,pins
+43,MS009,lpipm3-lpipm4,lpipm3,anode,left anterior long insular gyrus b,-38.957052,-10.12959,6.443424,Left anterior long insular gyrus B,pins
+44,MS009,lpipm4-lpipm5,lpipm4,anode,left posterior short insular gyrus a,-38.46628,-8.2472178,12.0566135,Left posterior short insular gyrus A,pins
+45,MS009,lpipm5-lpipm6,lpipm5,anode,left somatosensory m,-37.872204,-6.4015696,17.5424057,Left somatosensory M,
+46,MS009,lpipm7-lpipm8,lpipm8,cathode,left posterior motor h,-35.554127,-0.6462561,34.6121405,Left posterior motor H,motor
+47,MS009,lpipm8-lpipm9,lpipm8,anode,left posterior motor h,-35.554127,-0.6462561,34.6121405,Left posterior motor H,motor
+48,MS009,lpipm9-lpipm10,lpipm9,anode,left middle frontal gyrus 7 b,-34.892714,1.0890437,40.1831626,Left middle frontal gyrus 7 B,lpfc
+49,MS009,lpipm10-lpipm11,lpipm10,anode,left middle frontal gyrus 7 a,-34.113562,2.73941638,45.7879173,Left middle frontal gyrus 7 A,lpfc
+50,MS009,lpipm11-lpipm12,lpipm11,anode,left middle frontal gyrus 7 a,-33.234995,4.79163131,51.2591766,Left middle frontal gyrus 7 A,lpfc
+51,MS009,lptpt1-lptpt2,lptpt1,anode,left medial occipitotemporal gyrus d,-29.08538,-37.925816,-18.47344,Left medial occipitotemporal gyrus D,
+52,MS009,lptpt2-lptpt3,lptpt3,cathode,left medial occipitotemporal gyrus d,-39.142631,-39.642735,-15.442687,Left medial occipitotemporal gyrus D,
+53,MS009,lptpt3-lptpt4,lptpt3,anode,left medial occipitotemporal gyrus d,-39.142631,-39.642735,-15.442687,Left medial occipitotemporal gyrus D,
+54,MS009,lptpt5-lptpt6,lptpt6,cathode,left inferior middle temporal gyrus e,-53.468873,-42.307796,-10.613424,Left inferior middle temporal gyrus E,
+55,MS009,lptpt6-lptpt7,lptpt6,anode,left inferior middle temporal gyrus e,-53.468873,-42.307796,-10.613424,Left inferior middle temporal gyrus E,

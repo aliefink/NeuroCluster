@@ -21,7 +21,7 @@ class TFR_Cluster_Test(object):
       
     Methods
     ----------
-    **To-do: fill in methods info
+
     tfr_regression
     pixel_regression
     max_tfr_cluster

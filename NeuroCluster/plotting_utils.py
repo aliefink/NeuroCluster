@@ -45,17 +45,17 @@ def plot_beta_coef(betas, cluster_test,figsize=(6,4),dpi=150,sns_context='talk',
     return fig
     
 
-def plot_tstats(tstats, cluster_test,figsize=(6,4),dpi=150,sns_context='talk',cmap='Spectral_r'):
+def plot_tstats(tstats, cluster_test, figsize=(6,4), dpi=150, sns_context='talk', cmap='Spectral_r'):
     """
     Plots the t statistics for the regressor of interest.
 
     Args:
-    - tstats (np.array): 2D array of t statistics (frequency x time) corresponding with the beta coefficients for a linear regression. 
-    - cluster_test (NeuroCluster object): object containing the model specifications.
-    - figsize (tuple): size of the figure. Default is (8,4).
-    - dpi (int): dots per inch for the plot. Default is 150.
-    - sns_context (str): seaborn context for the plot. Default is 'talk'.
-    - cmap (str): colormap for the plot. Default is 'Spectral_r'.
+    - tstats                    : (np.array) 2D array of t statistics (frequency x time) corresponding with the beta coefficients for a linear regression. 
+    - cluster_test              : (NeuroCluster object) object containing the model specifications.
+    - figsize                   : (tuple) size of the figure. Default is (8,4).
+    - dpi                       : (int) dots per inch for the plot. Default is 150.
+    - sns_context               : (str) seaborn context for the plot. Default is 'talk'.
+    - cmap                      :  (str) colormap for the plot. Default is 'Spectral_r'.
 
     Returns:
     - None: displays a plot of the t statistics.
@@ -86,8 +86,8 @@ def plot_clusters(tstats,cluster_test,alternative='two-sided',figsize=(8,4),dpi=
     Plots clusters based on pixels with significant t-statistics for regressor of interest.
 
     Args:
-    tstat_threshold (list): List (either length 2 if alternative == 'two-sided' or length 1 if alternative == 'less' | 'greater') of binary matrices (frequency x time) for significant t-statistics.
-    max (bool): If True, plots the maximum cluster. If False, plots all clusters. Default is True.
+    tstat_threshold                 : (list) List (either length 2 if alternative == 'two-sided' or length 1 if alternative == 'less' | 'greater') of binary matrices (frequency x time) for significant t-statistics.
+    max                             : (bool) If True, plots the maximum cluster. If False, plots all clusters. Default is True.
     alternative (str): Type of test. Default is 'two-sided' but can also be 'greater' or 'less'. 
     figsize (tuple): size of the figure. Default is (8,4).
     dpi (int): dots per inch for the plot. Default is 150.
@@ -299,13 +299,13 @@ def plot_null_distribution(null_cluster_distribution, max_cluster_data, pvalue,f
     Plots the null distribution of the cluster permutation test.
 
     Args:
-    - null_cluster_distribution (np.array): 1D array of cluster statistics from the permutation test.
-    - max_cluster_data (list): List of dictionaries containing the significant cluster(s) statistics.
-    - pvalue (float): p-value associated with the cluster permutation test.
-    - figsize (tuple): size of the figure. Default is (12,4).
-    - dpi (int): dots per inch for the plot. Default is 150.
-    - sns_context (str): seaborn context for the plot. Default is 'talk'.
-    - sns_style (str): seaborn style for the plot. Default is 'white'.
+    - null_cluster_distribution                 : (np.array) 1D array of cluster statistics from the permutation test.
+    - max_cluster_data                          : (list) List of dictionaries containing the significant cluster(s) statistics.
+    - pvalue                                    : (float) p-value associated with the cluster permutation test.
+    - figsize                                   : (tuple) size of the figure. Default is (12,4).
+    - dpi                                       : (int) dots per inch for the plot. Default is 150.
+    - sns_context                               : (str) seaborn context for the plot. Default is 'talk'.
+    - sns_style                                 : (str) seaborn style for the plot. Default is 'white'.
 
 
     Returns:
@@ -360,12 +360,12 @@ def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_cluster
     Plots all the results from a NeuroCluster object.
 
     Args:
-    - betas (np.array): 2D array of beta coefficients (frequency x time) from a linear regression.
-    - cluster_test (NeuroCluster object): object containing the model specifications.
-    - max_cluster_data (list): List of dictionaries containing the significant cluster(s) statistics.
-    - null_cluster_distribution (np.array): 1D array of cluster statistics from the permutation test.
-    - tstats (np.array): 2D array of t statistics (frequency x time) corresponding with the beta coefficients for a linear regression.
-    - tstat_threshold (list): List (either length 2 if alternative == 'two-sided' or length 1 if alternative == 'less' | 'greater') of binary matrices (frequency x time) for significant t-statistics.
+    - betas                     :(np.array) 2D array of beta coefficients (frequency x time) from a linear regression.
+    - cluster_test              :(NeuroCluster object) object containing the model specifications.
+    - max_cluster_data          : (list) List of dictionaries containing the significant cluster(s) statistics.
+    - null_cluster_distribution : (np.array) 1D array of cluster statistics from the permutation test.
+    - tstats                    : (np.array) 2D array of t statistics (frequency x time) corresponding with the beta coefficients for a linear regression.
+    - tstat_threshold           : (list) List (either length 2 if alternative == 'two-sided' or length 1 if alternative == 'less' | 'greater') of binary matrices (frequency x time) for significant t-statistics.
 
     Returns:
     - None: displays beta coefficients, t statistics, significant clusters, maximum cluster(s), and null distribution plots.
