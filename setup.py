@@ -10,10 +10,10 @@ authors = ['Alexandra Fink','Christina Maher','Salman Qasim','Ignacio Saez']
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
-setup(
-    name='NeuroCluster',
+setup(name='NeuroCluster',
     version='1.0.0',
-    description='Python package for non-parametric cluster-based permutation testing for time-frequency resolved neurophysiological signals related to complex behaviors.'
+    description='Python package for non-parametric cluster-based permutation testing for time-frequency resolved neurophysiological signals related to complex behaviors.',
+    long_description=open('README.md').read(),
     url=github_url,
     author=', '.join(authors), 
     packages=find_packages(),   
@@ -21,4 +21,5 @@ setup(
     include_package_data=True,
     install_requires=required,
 )
+
 

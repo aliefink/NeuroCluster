@@ -1,5 +1,5 @@
 # __init__.py
-from .NeuroCluster import TFR_Cluster_Test
+from .NeuroCluster import *
 from .plotting_utils import *
 from .helper_utils import *
 
