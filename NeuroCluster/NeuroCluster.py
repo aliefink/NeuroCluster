@@ -6,7 +6,6 @@ import statsmodels.api as sm
 from scipy.ndimage import label 
 
 class TFR_Cluster_Test(object):
-
     '''
     Single-electrode neurophysiology object class to identify time-frequency resolved neural activity correlates of complex behavioral variables using non-parametric 
     cluster-based permutation testing.   
@@ -121,13 +120,16 @@ class TFR_Cluster_Test(object):
         '''
         
         max_cluster_data = []
+        
         # Create binary matrix from tfr_tstats by thresholding pixel t-statistics by tcritical. (1 = pixel t-statistic exceeded tcritical threshold)
         for binary_mat in self.threshold_tfr_tstat(tfr_tstats):
-
             # test whether there are any pixels above tcritical threshold
-            if np.sum(binary_mat) != 0: 
+
+            if np.sum(binary_mat) != 0:  
+                
                 # Find clusters of pixels with t-statistics exceeding tcritical
                 cluster_label, num_clusters = label(binary_mat,clust_struct)
+                del binary_mat # improve speed, reduce memory load
                 # use argmax to find index of largest absolute value of cluster t statistic sums 
                 max_label = np.argmax([np.abs(np.sum(tfr_tstats[cluster_label==i+1])) for i in range(num_clusters)])+1
                 # use max_label index to compute cluster tstat sum (without absolute value)
@@ -144,8 +146,8 @@ class TFR_Cluster_Test(object):
                 elif max_cluster_output == 'expanded':
                     max_cluster_data.append({'cluster_stat':max_clust_stat,'freq_idx':clust_freqs,'time_idx':clust_times,
                                             'all_clusters':cluster_label,'max_label':max_label})
-            
             else: # if there is no cluster, return max_cluster_data with empty dictionaries
+                
                 if max_cluster_output == 'all':
                     max_cluster_data.append({'cluster_stat':0,'freq_idx':0,'time_idx':0})
                 elif max_cluster_output == 'cluster_stat':
@@ -193,7 +195,7 @@ class TFR_Cluster_Test(object):
 
         if self.alternative == 'two-sided': # return positive and negative t-critical for two-sided hypothesis test 
             return [(tfr_tstats>=self.compute_tcritical()).astype(int), 
-                    (tfr_tstats<=np.negative(self.compute_tcritical(alternative='two-sided'))).astype(int)]
+                    (tfr_tstats<=np.negative(self.compute_tcritical())).astype(int)]
 
         elif self.alternative == 'greater': # return positive t-critical for one-sided hypothesis test 
             return [(tfr_tstats>=self.compute_tcritical()).astype(int)]
@@ -249,7 +251,7 @@ class TFR_Cluster_Test(object):
         Returns:
         - permuted_tstats : (np.array) Matrix of null t-statistics from permuted pixel-wise regressions. Array of tfr_dims (n_freqs,n_times). 
         '''
-        
+
         # Permute predictor data with respect to predictor of interest (target_var). Predictor data should only be permuted once for entire tfr (not for every pixel). 
         self.ols_dmatrix[self.target_var] = np.random.permutation(self.ols_dmatrix[self.target_var].values)
 
@@ -260,6 +262,8 @@ class TFR_Cluster_Test(object):
         
         # extract only permuted_tstats from all pixel_regression outputs
         _,permuted_tstats = list(zip(*permuted_results))
+        
+        del permuted_results # improve speed, reduce memory load
         
         # return permuted tstatistics as 2D array (shape = tfr_dims) to compute null tfr cluster statistics  
         return np.resize(np.array(permuted_tstats), (self.tfr_data.shape[1],self.tfr_data.shape[2]))
@@ -279,18 +283,23 @@ class TFR_Cluster_Test(object):
 
         cluster_pvalue = []
         
-        if self.alternative == 'two-sided':
+        if self.alternative == 'two-sided':  
+
         # Iterate through real max cluster statistics info and null distribution simultaneously
             for cluster, null_stats in list(zip(max_cluster_data,null_distribution)): # cluster_stat and null_stats should have the same sign
                 # check whether sign of cluster_stat and null_stats is the same
-                if np.sign(cluster['cluster_stat']) == np.sign(null_stats): 
+                if np.sign(cluster['cluster_stat']) == np.sign(null_stats[0]): 
                     # pvalue = (number of null stats more extreme than observed maximum clustre statistic)/(number of permutations)
-                    pval = np.sum(np.abs(np.array(null_stats)) > np.abs(cluster['cluster_stat']))/null_stats.shape[0]
+                    pval = np.sum(np.abs(np.array(null_stats)) > np.abs(cluster['cluster_stat']))/len(null_stats)
                     cluster_pvalue.append(pval) # add pval to cluster_pvalue list
                 else: # if the sign of the max cluster data is not the same as the corresponding null distribution, raise an error 
                     raise ValueError('Signs of max cluster stats and null distributions do not align') 
+        
             return cluster_pvalue
+        
         else: 
-            pval = np.sum(np.abs(np.array(null_distribution)) > np.abs(max_cluster_data[0]['cluster_stat'])) / len(
-                null_distribution)            
+            # For one sided hypothesis tests, compute pvalue from inputs 
+            pval = np.sum(np.abs(np.array(null_distribution)) > np.abs(max_cluster_data[0]['cluster_stat'])) / len(null_distribution)            
+            
+            # return as list to match two-sided test format
             return [pval]

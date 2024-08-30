@@ -12,27 +12,31 @@ authors:
   - name: Alexandra Fink-Skular
     orcid: 0000-0003-1648-4604
     equal-contrib: true
-    affiliation: "1, 2" # (Multiple affiliations must be quoted)
+    affiliation: "1, 2, 3" # (Multiple affiliations must be quoted)
   - name: Christina Maher
     orcid: 0000-0003-1648-4604
     equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
-    affiliation: 2
+    affiliation: "1, 2, 3"
   - name: Salman Qasim
     orcid: 0000-0003-1648-4604
     corresponding: false # (This is how to denote the corresponding author)
-    affiliation: 3
+    affiliation: "2, 3"
   - name: Ignacio Saez
     orcid: 0000-0003-1648-4604
     corresponding: true # (This is how to denote the corresponding author)
-    affiliation: 3
+    affiliation: "1, 2, 3, 4, 5"
 affiliations:
- - name: Lyman Spitzer, Jr. Fellow, Princeton University, USA
+ - name: The Nash Family Department of Neuroscience, Icahn School of Medicine at Mount Sinai, NY, NY
    index: 1
- - name: Institution Name, Country
+ - name: The Nash Family Center for Advanced Circuit Therapeutics, The Mount Sinai Hopsital, NY, NY
    index: 2
- - name: Independent Researcher, Country
+ - name: The Center for Computational Psychiatry,Icahn School of Medicine at Mount Sinai, NY, NY
    index: 3
-date: 13 August 2024
+- name: Department of Neurosurgery, The Mount Sinai Hopsital, NY, NY 
+   index: 4
+- name: Department of Neurology, The Mount Sinai Hopsital, NY, NY 
+   index: 5
+date: 30 August 2024
 bibliography: paper.bib
 
 ---
