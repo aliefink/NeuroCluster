@@ -36,7 +36,7 @@ def plot_tcritical(cluster_test,figsize=(5.5,4.5),dpi=125,context='talk',tcrit_c
 
     # plot t distribution
     ax.plot(xs, y, 'k',linewidth=1.5)
-    fig.suptitle(rf'   T-Distribution: $t_{{{{df={df}}}}}$')
+    fig.suptitle(rf'   $T$-Distribution: $t_{{{{df={df}}}}}$')
     ax.tick_params(length=0)
     plt.ylabel('Probability Density')
     plt.xlabel(r'$t-values$')
@@ -200,9 +200,9 @@ def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
         tcritical = cluster_test.compute_tcritical()
 
         fig, axs = plt.subplots(1,2,figsize=figsize,dpi=dpi,constrained_layout=True)
-        fig.suptitle('Threshold Significant Pixels')
-        fig.supxlabel('Frequency (Hz)',fontsize=20)
-        fig.supylabel('Time (ms)',fontsize=20)
+        fig.suptitle('Pixel-Wise Significance Tests')
+        fig.supylabel('Frequency (Hz)',fontsize=20)
+        fig.supxlabel('Time (ms)',fontsize=20)
         for i in range(len(tstat_threshold)):
             if i == 0:
                 axs[i].imshow(tstat_threshold[i], interpolation = 'Bicubic',cmap='Reds', aspect='auto',origin='lower')
@@ -220,9 +220,9 @@ def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
         tcritical = cluster_test.compute_tcritical()
     
         fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
-        fig.suptitle('Threshold Significant Pixels')
-        fig.supxlabel('Frequency (Hz)',fontsize=20)
-        fig.supylabel('Time (ms)',fontsize=20)
+        fig.suptitle('Pixel-Wise Significance Tests')
+        fig.supylabel('Frequency (Hz)',fontsize=20)
+        fig.supxlabel('Time (ms)',fontsize=20)
         ax.imshow(tstat_threshold[0], interpolation = 'Bicubic',cmap='Reds', aspect='auto',origin='lower')
         ax.set_title(fr'$t_{{pixel}}>t_{{critical}}={np.round(tcritical,2)}$',fontsize=16)
         ax.tick_params(size=5,width=1)
@@ -232,9 +232,9 @@ def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
         tstat_threshold = cluster_test.threshold_tfr_tstat(tstats)
         tcritical = cluster_test.compute_tcritical()
         fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
-        fig.suptitle('Threshold Significant Pixels')
-        fig.supxlabel('Frequency (Hz)',fontsize=20)
-        fig.supylabel('Time (ms)',fontsize=20)
+        fig.suptitle('Pixel-Wise Significance Tests')
+        fig.supylabel('Frequency (Hz)',fontsize=20)
+        fig.supxlabel('Time (ms)',fontsize=20)
         ax.imshow(tstat_threshold[0], interpolation = 'Bicubic',cmap='Blues', aspect='auto',origin='lower')
         ax.set_title(fr'$t_{{pixel}}<t_{{critical}}={np.negative(np.round(tcritical,2))}$',fontsize=16)
         ax.tick_params(size=5,width=1)
@@ -243,7 +243,7 @@ def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
     return fig
 
 
-def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4),dpi=125,context='talk'):
+def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dpi=125,context='talk'):
     """
     Plots significant clusters (positive and negative).
 
@@ -268,8 +268,9 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4),dpi=
         if which_cluster=='all':
 
             fig,axs = plt.subplots(1,len(max_cluster_info),figsize=figsize,dpi=dpi,constrained_layout=True)
-            fig.supxlabel('Frequency (Hz)')
-            fig.supylabel('Time (ms)')
+            fig.suptitle('TFR-Level Threshold: Max Cluster Statistic')
+            fig.supylabel('Frequency (Hz)',fontsize=20)
+            fig.supxlabel('Time (ms)',fontsize=20)
             # Loop through the list of dictionaries
             for i,cluster in enumerate(max_cluster_info):
 
@@ -285,22 +286,18 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4),dpi=
                 if cluster['cluster_stat'] > 0:
                     # Plot the masked tstat plot
                     axs[i].imshow(masked_tstat_plot, interpolation='bicubic', cmap='Reds', aspect='auto', origin='lower')
-                    # axs[i].set_ylabel('Frequency (Hz)')
-                    # axs[i].set_xlabel('Time (ms)')
                     axs[i].text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
                         r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[i]["cluster_stat"],2)}']),color='k',fontsize=11,
                         va='top',ha='right',transform=axs[i].transAxes)                
-                    axs[i].set_title(r'Max Positive Cluster',fontsize=20)
+                    axs[i].set_title(r'Positive Cluster',fontsize=15)
                     axs[i].tick_params(size=5,width=1)
 
                 elif cluster['cluster_stat'] < 0:
                     axs[i].imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
-                    # axs[i].set_ylabel('Frequency (Hz)')
-                    # axs[i].set_xlabel('Time (ms)')
                     axs[i].text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
                         r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[i]["cluster_stat"],2)}']),color='k',fontsize=11,
                         va='top',ha='right',transform=axs[i].transAxes)
-                    axs[i].set_title(r'Max Negative Cluster',fontsize=20)
+                    axs[i].set_title(r'Negative Cluster',fontsize=15)
                     axs[i].tick_params(size=5,width=1)
 
         elif which_cluster=='positive':
@@ -316,17 +313,16 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4),dpi=
             masked_tstat_plot[cluster_freqs, cluster_times] = 1
             
             fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
-            fig.supxlabel('Frequency (Hz)')
-            fig.supylabel('Time (ms)')
+            fig.suptitle('TFR-Level Threshold: Max Cluster Statistic')
+            fig.supylabel('Frequency (Hz)',fontsize=20)
+            fig.supxlabel('Time (ms)',fontsize=20)
 
             # Plot the masked tstat plot
             ax.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Reds', aspect='auto', origin='lower')
-            # ax.set_ylabel('Frequency (Hz)')
-            # ax.set_xlabel('Time (ms)')
             ax.text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
                 r'$\sum$ $t_{{pixel}} = $',f'{np.round(cluster["cluster_stat"],2)}']),color='k',fontsize=11,
                 va='top',ha='right',transform=ax.transAxes)                
-            ax.set_title(r'Max Positive Cluster',fontsize=20)
+            ax.set_title(r'Positive Cluster',fontsize=15)
             axs[i].tick_params(size=5,width=1)
         
         elif which_cluster=='negative':
@@ -343,16 +339,15 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4),dpi=
             
             # Plot the masked tstat plot
             fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
-            fig.supxlabel('Frequency (Hz)')
-            fig.supylabel('Time (ms)')
+            fig.suptitle('TFR-Level Threshold: Max Cluster Statistic')
+            fig.supylabel('Frequency (Hz)',fontsize=20)
+            fig.supxlabel('Time (ms)',fontsize=20)
 
             ax.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
-            # ax.set_ylabel('Frequency (Hz)')
-            # ax.set_xlabel('Time (ms)')
             ax.text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
                     r'$\sum$ $t_{{pixel}} = $',f'{np.round(cluster["cluster_stat"],2)}']),color='k',fontsize=11,
                     va='top',ha='right',transform=ax.transAxes)
-            ax.set_title(r'Max Negative Cluster',fontsize=20)
+            ax.set_title(r'Negative Cluster',fontsize=15)
             axs[i].tick_params(size=5,width=1)
 
 
@@ -371,29 +366,27 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4),dpi=
 
         if max_cluster_info[0]['cluster_stat'] > 0:
             fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
-            fig.supxlabel('Frequency (Hz)')
-            fig.supylabel('Time (ms)')
+            fig.suptitle('TFR-Level Threshold: Max Cluster Statistic')
+            fig.supylabel('Frequency (Hz)',fontsize=20)
+            fig.supxlabel('Time (ms)',fontsize=20)
             
             # Plot the masked tstat plot
             plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Reds', aspect='auto', origin='lower')
-            # plt.ylabel('Frequency (Hz)')
-            # plt.xlabel('Time (ms)')
             ax.text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
                     r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[0]["cluster_stat"],2)}']),color='k',fontsize=11,
                     va='top',ha='right',transform=ax.transAxes)
-            plt.title(r'Max Positive Cluster',fontsize=20)
+            plt.title(r'Positive Cluster',fontsize=15)
 
         elif max_cluster_info[0]['cluster_stat'] < 0:
             fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
-            fig.supxlabel('Frequency (Hz)')
-            fig.supylabel('Time (ms)')
+            fig.suptitle('TFR-Level Threshold: Max Cluster Statistic')
+            fig.supylabel('Frequency (Hz)',fontsize=20)
+            fig.supxlabel('Time (ms)',fontsize=20)
             plt.imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
-            # plt.ylabel('Frequency (Hz)')
-            # plt.xlabel('Time (ms)')
             ax.text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
                     r'$\sum$ $t_{{pixel}} = $',f'{np.round(max_cluster_info[0]["cluster_stat"],2)}']),color='k',fontsize=11,
                     va='top',ha='right',transform=ax.transAxes)
-            plt.title(r'Max Negative Cluster',fontsize=20)
+            plt.title(r'Negative Cluster',fontsize=15)
 
     plt.close(fig) 
 
@@ -439,7 +432,7 @@ def plot_null_distribution(null_clusters, max_cluster_data, pvalue,figsize=(9,4.
                 axs.set_title(f'Positive Cluster\n'+r'$^\mathit{{pvalue \approxeq\ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
                 axs.annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs.get_ylim()[1]),xycoords='data',
-                                xytext=(5,-15),color='red',
+                                xytext=(5,-10),color='red',
                                 fontsize=10,textcoords='offset points')
             else:
                 # plot null data
@@ -449,7 +442,7 @@ def plot_null_distribution(null_clusters, max_cluster_data, pvalue,figsize=(9,4.
                 axs[i].set_title(f'Positive Cluster\n'+r'$^\mathit{{pvalue \approxeq\ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
                 axs[i].annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
-                                xytext=(5,-15),color='red',
+                                xytext=(5,-10),color='red',
                                 fontsize=10,textcoords='offset points')
         else:
             if len(pvalue) == 1:
@@ -461,7 +454,7 @@ def plot_null_distribution(null_clusters, max_cluster_data, pvalue,figsize=(9,4.
                 axs.set_title(f'Negative Cluster\n'+r'$^\mathit{{pvalue \approxeq\ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
                 axs.annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs.get_ylim()[1]),xycoords='data',
-                                xytext=(-70,-15),color='red',
+                                xytext=(-70,-10),color='red',
                                 fontsize=10,textcoords='offset points')
             else:
                 # plot null data
@@ -471,10 +464,10 @@ def plot_null_distribution(null_clusters, max_cluster_data, pvalue,figsize=(9,4.
                 axs[i].set_title(f'Negative Cluster\n'+r'$^\mathit{{pvalue \approxeq \ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
                 axs[i].annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
-                                xytext=(-70,-15),color='red',
+                                xytext=(-70,-10),color='red',
                                 fontsize=10,textcoords='offset points')
     
-    fig.supxlabel('Permutation Test Statistics',fontsize=18)
+    fig.supxlabel('Surrogate Test Statistics',fontsize=18)
     fig.supylabel('Count',fontsize=18)
     sns.despine()    
     plt.close(fig) 
