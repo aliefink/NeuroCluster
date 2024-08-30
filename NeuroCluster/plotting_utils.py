@@ -428,35 +428,47 @@ def plot_null_distribution(null_clusters, max_cluster_data, pvalue,figsize=(9,4.
         # extract null data based on type of hypothesis test 
         l_fn = lambda x,i: x if len(x)>2 else x[i]
         null_data = l_fn(null_clusters,i)
-        # plot null data
-        plt.hist(null_data, bins=20, color='gray',edgecolor='black')
-        plt.axvline(cluster['cluster_stat'], color='red', linestyle='dashed', linewidth=2)
-        plt.tick_params(size=5)
 
         if cluster['cluster_stat'] > 0:
             if len(pvalue) == 1: 
+                # plot null data
+                plt.hist(null_data, bins=20, color='gray',edgecolor='black')
+                plt.axvline(cluster['cluster_stat'], color='red', linestyle='dashed', linewidth=2)
+                plt.tick_params(size=5)
                 # 1d axes not scriptable
-                axs.set_title(f'Positive Cluster\n'+r'$^\mathit{{pvalue =\ {}}}$'.format(np.round(pvalue[i],4)),
+                axs.set_title(f'Positive Cluster\n'+r'$^\mathit{{pvalue \approxeq\ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
                 axs.annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs.get_ylim()[1]),xycoords='data',
                                 xytext=(5,-15),color='red',
                                 fontsize=10,textcoords='offset points')
             else:
-                axs[i].set_title(f'Positive Cluster\n'+r'$^\mathit{{pvalue =\ {}}}$'.format(np.round(pvalue[i],4)),
+                # plot null data
+                axs[i].hist(null_data, bins=20, color='gray',edgecolor='black')
+                axs[i].axvline(cluster['cluster_stat'], color='red', linestyle='dashed', linewidth=2)
+                axs[i].tick_params(size=5)
+                axs[i].set_title(f'Positive Cluster\n'+r'$^\mathit{{pvalue \approxeq\ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
-                axs[i].annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs.get_ylim()[1]),xycoords='data',
+                axs[i].annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
                                 xytext=(5,-15),color='red',
                                 fontsize=10,textcoords='offset points')
         else:
             if len(pvalue) == 1:
+                # plot null data
+                plt.hist(null_data, bins=20, color='gray',edgecolor='black')
+                plt.axvline(cluster['cluster_stat'], color='red', linestyle='dashed', linewidth=2)
+                plt.tick_params(size=5)
                 # 1d axes not scriptable
-                axs.set_title(f'Negative Cluster\n'+r'$^\mathit{{pvalue :\ {}}}$'.format(np.round(pvalue[i],4)),
+                axs.set_title(f'Negative Cluster\n'+r'$^\mathit{{pvalue \approxeq\ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
                 axs.annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs.get_ylim()[1]),xycoords='data',
                                 xytext=(-70,-15),color='red',
                                 fontsize=10,textcoords='offset points')
             else:
-                axs[i].set_title(f'Negative Cluster\n'+r'$^\mathit{{pvalue :\ {}}}$'.format(np.round(pvalue[i],4)),
+                # plot null data
+                axs[i].hist(null_data, bins=20, color='gray',edgecolor='black')
+                axs[i].axvline(cluster['cluster_stat'], color='red', linestyle='dashed', linewidth=2)
+                axs[i].tick_params(size=5)
+                axs[i].set_title(f'Negative Cluster\n'+r'$^\mathit{{pvalue \approxeq \ {}}}$'.format(np.round(pvalue[i],4)),
                              fontsize=16)
                 axs[i].annotate(f'True Statistic',xy=(cluster['cluster_stat'],axs[i].get_ylim()[1]),xycoords='data',
                                 xytext=(-70,-15),color='red',
@@ -486,11 +498,12 @@ def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_cluster
     - None: displays beta coefficients, t statistics, significant clusters, maximum cluster(s), and null distribution plots.
 
     """
+    tcrit_plot = plot_tcritical(cluster_test)
     beta_plot = plot_beta_coef(betas, cluster_test)
     tstat_plot = plot_tstats(tstats, cluster_test)
     cluster_plot = plot_clusters(tstats,cluster_test)
     max_cluster_plot= plot_max_clusters(cluster_test,tstats)
     null_distribution_plot = plot_null_distribution(null_clusters, max_cluster_data,cluster_pvalue)
 
-    return beta_plot,tstat_plot,cluster_plot,max_cluster_plot,null_distribution_plot
+    return tcrit_plot,beta_plot,tstat_plot,cluster_plot,max_cluster_plot,null_distribution_plot
 

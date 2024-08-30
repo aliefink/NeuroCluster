@@ -14,15 +14,15 @@ authors:
     equal-contrib: true
     affiliation: "1, 2, 3" # (Multiple affiliations must be quoted)
   - name: Christina Maher
-    orcid: 0000-0003-1648-4604
+    orcid: 0009-0003-8188-2083
     equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
     affiliation: "1, 2, 3"
   - name: Salman Qasim
-    orcid: 0000-0003-1648-4604
+    orcid: 0000-0001-8739-5962
     corresponding: false # (This is how to denote the corresponding author)
     affiliation: "2, 3"
   - name: Ignacio Saez
-    orcid: 0000-0003-1648-4604
+    orcid: 0000-0003-0651-2069
     corresponding: true # (This is how to denote the corresponding author)
     affiliation: "1, 2, 3, 4, 5"
 affiliations:
