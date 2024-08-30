@@ -17,7 +17,9 @@ class TFR_Cluster_Test(object):
     tfr_dims       : (tuple) Frequency and time dimensions of tfr_data. Tuple of integers (n_freq,n_times). 
     ch_name        : (str) Unique electrode identification label. String of characters.
     predictor_data : (pd.DataFrame) Regressors from task behavior with continuous, discreet, or categorical data. DataFrame of (rows=n_epochs,columns=n_regressors). 
-    permute_var    : (str) Column label for primary regressor of interest.
+    target_var     : (str) Column label for primary regressor of interest.
+    alternative    : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or 'less'. Default is 'two-sided'.
+    alpha          : (float) Significance level - Threshold for allowable type 1 error rates. Default is 0.05.
       
     Methods
     ----------
@@ -33,13 +35,13 @@ class TFR_Cluster_Test(object):
 
     '''
 
-    def __init__(self, tfr_data, predictor_data, permute_var, ch_name, alternative='two-sided', alpha=0.05, **kwargs):
+    def __init__(self, tfr_data, predictor_data, target_var, ch_name, alternative='two-sided', alpha=0.05, **kwargs):
 
         '''
         Args:
         - tfr_data       : (np.array) Single electrode tfr data matrix. Array of floats (n_epochs,n_freqs,n_times). 
         - predictor_data : (pd.DataFrame) Task-based regressor data with dtypes continuous/discreet(int64/float) or categorical(pd.Categorical). DataFrame of (n_epochs,n_regressors).
-        - permute_var    : (str) Column label for primary regressor of interest. Array of 1d integers or floats (n_epochs,).
+        - target_var     : (str) Column label for primary regressor of interest. Array of 1d integers or floats (n_epochs,).
         - ch_name        : (str) Unique electrode identification label. String of characters.  
         - alternative    : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or 'less'. Default is 'two-sided'.
         - alpha          : (float) Significance level - Threshold for allowable type 1 error rates. Default is 0.05.
@@ -50,9 +52,9 @@ class TFR_Cluster_Test(object):
         self.tfr_dims        = self.tfr_data.shape[1:] # time-frequency dims of electrode data (n_freqs x n_times)
         self.ch_name         = ch_name # channel name for single electrode tfr data
         self.predictor_data  = predictor_data # single subject behav data
-        self.permute_var     = permute_var # variable to permute in regression model 
+        self.target_var      = target_var # variable to permute in regression model 
         self.ols_dmatrix     = pd.get_dummies(predictor_data,drop_first=True) # converts only categorical variables into one dummy coded vector
-        self.permute_var_idx = np.where(self.ols_dmatrix.columns  == permute_var)[0][0] # column index of regressor of interest in dummy coded dmatrix
+        self.target_var_idx  = np.where(self.ols_dmatrix.columns  == target_var)[0][0] # column index of regressor of interest in dummy coded dmatrix
         self.alternative     = alternative # Type of hypothesis test for t-distribution. Must be 'two-sided', 'greater', 'less'. Default is 'two-sided'.
         self.alpha           = alpha # Significance level 
 
@@ -80,7 +82,7 @@ class TFR_Cluster_Test(object):
     def pixel_regression(self,pixel_data):
         
         '''        
-        Fit pixel-wise univariate or multivariate OLS regression model and extract beta coefficient and t-statistic for predictor of interest (self.permute_var). 
+        Fit pixel-wise univariate or multivariate OLS regression model and extract beta coefficient and t-statistic for predictor of interest (self.target_var). 
 
         Args:
         - pixel_data : (np.array) Array of power values for every epochs from single time-frequency pixel in tfr-data. Array of floats (num_epochs,)
@@ -90,16 +92,16 @@ class TFR_Cluster_Test(object):
         - pixel_tval : (np.array) Observed t-statistic for predictor of interest from pixel-wise regression. Array of 1d float (1,)
         '''
         
-        # Fit pixel-wise regression model. If called in permuted_tfr_regressions, ols_dmatrix.permute_var is permuted once per tfr, not for each pixel.
+        # Fit pixel-wise regression model. If called in permuted_tfr_regressions, ols_dmatrix.target_var is permuted once per tfr, not for each pixel.
         pixel_model = sm.OLS(pixel_data,sm.add_constant(self.ols_dmatrix.to_numpy()),missing='drop').fit()
         
-        # Return the estimated beta coefficient and tvalue for predictor of interest only (permute_var)
-        return (pixel_model.params[self.permute_var_idx + 1],pixel_model.tvalues[self.permute_var_idx + 1])
+        # Return the estimated beta coefficient and tvalue for predictor of interest only (target_var)
+        return (pixel_model.params[self.target_var_idx + 1],pixel_model.tvalues[self.target_var_idx + 1])
 
     def max_tfr_cluster(self,tfr_tstats,max_cluster_output='all',clust_struct=np.ones(shape=(3,3))):
 
         '''
-        Identify time-frequency clusters of neural activity that are significantly correlated with the predictor of interest (self.permute_var). Clusters are identified 
+        Identify time-frequency clusters of neural activity that are significantly correlated with the predictor of interest (self.target_var). Clusters are identified 
         from neighboring pixel regression t-statistics for the predictor of interest that exceed the tcritical threshold from the alternate hypothesis. 
 
         Args:
@@ -205,7 +207,7 @@ class TFR_Cluster_Test(object):
 
         '''
         Compute null distribution (length = num_permutations) of maximum cluster statistics by running tfr regressions with permuted predictor of interest. 
-        Note: only the predictor of interest (self.permute_var) is permuted. We recommend only permuting the predictor of interest so your results are not
+        Note: only the predictor of interest (self.target_var) is permuted. We recommend only permuting the predictor of interest so your results are not
               confounded by covariates. 
 
         Args:
@@ -238,7 +240,7 @@ class TFR_Cluster_Test(object):
     def permuted_tfr_regression(self,n_jobs=-1,verbose=0):
 
         '''
-        Run pixel-wise tfr regression with predictor data permuted with respect to predictor of interest (self.permute_var). Covariates are not permuted.
+        Run pixel-wise tfr regression with predictor data permuted with respect to predictor of interest (self.target_var). Covariates are not permuted.
 
         Args:
         - n_jobs  : (int) Number of CPUs used to run pixel-wise regressions in parallel. Default is -1 (use all available CPUs)
@@ -248,8 +250,8 @@ class TFR_Cluster_Test(object):
         - permuted_tstats : (np.array) Matrix of null t-statistics from permuted pixel-wise regressions. Array of tfr_dims (n_freqs,n_times). 
         '''
         
-        # Permute predictor data with respect to predictor of interest (permute_var). Predictor data should only be permuted once for entire tfr (not for every pixel). 
-        self.ols_dmatrix[self.permute_var] = np.random.permutation(self.ols_dmatrix[self.permute_var].values)
+        # Permute predictor data with respect to predictor of interest (target_var). Predictor data should only be permuted once for entire tfr (not for every pixel). 
+        self.ols_dmatrix[self.target_var] = np.random.permutation(self.ols_dmatrix[self.target_var].values)
 
         # Run Parallelized pixel-wise regressions across 1d tfr_data expanded to shape (1,np.prod(self.tfr_dims)). 
         # permuted_results is a list of pixel-wise null betas and t-statistics with length = np.prod(self.tfr_dims) 
