@@ -96,25 +96,25 @@ class TFR_Cluster_Test(object):
         # Return the estimated beta coefficient and tvalue for predictor of interest only (permute_var)
         return (pixel_model.params[self.permute_var_idx + 1],pixel_model.tvalues[self.permute_var_idx + 1])
 
-    def max_tfr_cluster(self,tfr_tstats,output='all',clust_struct=np.ones(shape=(3,3))):
+    def max_tfr_cluster(self,tfr_tstats,max_cluster_output='all',clust_struct=np.ones(shape=(3,3))):
 
         '''
         Identify time-frequency clusters of neural activity that are significantly correlated with the predictor of interest (self.permute_var). Clusters are identified 
         from neighboring pixel regression t-statistics for the predictor of interest that exceed the tcritical threshold from the alternate hypothesis. 
 
         Args:
-        - tfr_tstats       : (np.array) Pixel regression tstatistic from coefficient estimates for predictor of interest. Array of floats (n_freqs,n_times). 
-        - output           : (str) Output format for max cluster statistics. Must be 'all', 'cluster_stat', or 'freq_time'. Default is 'all'.
-        - clust_struct     : (np.array) Binary matrix to specify cluster structure for scipy.ndimage.label. Array of (3,3). 
+        - tfr_tstats         : (np.array) Pixel regression tstatistic from coefficient estimates for predictor of interest. Array of floats (n_freqs,n_times). 
+        - max_cluster_output : (str) Output format for max cluster statistics. Must be 'all', 'cluster_stat', or 'freq_time'. Default is 'all'.
+        - clust_struct       : (np.array) Binary matrix to specify cluster structure for scipy.ndimage.label. Array of (3,3). 
                                         Default is np.ones.shape(3,3), to allow diagonal cluster pixels (Not the scipy.ndimage.label default).
                                         https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.label.html
 
         Returns:
         - max_cluster_data : (list) Data for cluster with maximum statistic (sum of pixel tvals). List of dict(s). If alternative='two-sided':len=2,else: len=1. 
-                                    If output = 'all', return dictionary of maximum cluster statistic ('cluster_stat' : sum of pixel t-statistics), 
+                                    If max_cluster_output = 'all', return dictionary of maximum cluster statistic ('cluster_stat' : sum of pixel t-statistics), 
                                     cluster frequency indices ('freq_idx':(freq_x,freq_y)), and cluster time indices ('time_idx':(time_x,time_y)). 
-                                    If output = 'cluster_stat', return only [{cluster_stat}]. If output = 'freq_time', return only {freq_idx,time_idx}
-                                    If output = 'expanded', return 'all' & 'all_clusters': 2D cluster ID matrix,'max_label': all_clusters label of max cluster
+                                    If max_cluster_output = 'cluster_stat', return only [{cluster_stat}]. If max_cluster_output = 'freq_time', return only {freq_idx,time_idx}
+                                    If max_cluster_output = 'expanded', return 'all' & 'all_clusters': 2D cluster ID matrix,'max_label': all_clusters label of max cluster
                                     ** If no clusters are found, max_cluster_data contains list of empty dictionaries
         '''
         
@@ -133,24 +133,24 @@ class TFR_Cluster_Test(object):
                 # find 2D indices of minimum/maximum cluster frequencies and times 
                 clust_freqs, clust_times = [(np.min(arr),np.max(arr)) for arr in np.where(cluster_label == max_label)]
 
-                if output == 'all':
+                if max_cluster_output == 'all':
                     max_cluster_data.append({'cluster_stat':max_clust_stat,'freq_idx':clust_freqs,'time_idx':clust_times})
-                elif output == 'cluster_stat':
+                elif max_cluster_output == 'cluster_stat':
                     max_cluster_data.append({'cluster_stat':max_clust_stat})
-                elif output == 'freq_time':
+                elif max_cluster_output == 'freq_time':
                     max_cluster_data.append({'freq_idx':clust_freqs,'time_idx':clust_times})
-                elif output == 'expanded':
+                elif max_cluster_output == 'expanded':
                     max_cluster_data.append({'cluster_stat':max_clust_stat,'freq_idx':clust_freqs,'time_idx':clust_times,
                                             'all_clusters':cluster_label,'max_label':max_label})
             
             else: # if there is no cluster, return max_cluster_data with empty dictionaries
-                if output == 'all':
+                if max_cluster_output == 'all':
                     max_cluster_data.append({'cluster_stat':0,'freq_idx':0,'time_idx':0})
-                elif output == 'cluster_stat':
+                elif max_cluster_output == 'cluster_stat':
                     max_cluster_data.append({'cluster_stat':0})
-                elif output == 'freq_time':
+                elif max_cluster_output == 'freq_time':
                     max_cluster_data.append({'freq_idx':0,'time_idx':0})
-                elif output == 'expanded':
+                elif max_cluster_output == 'expanded':
                     max_cluster_data.append({'cluster_stat':0,'freq_idx':0,'time_idx':0,'max_label':0,'all_clusters':0})            
         
         return max_cluster_data
@@ -201,7 +201,7 @@ class TFR_Cluster_Test(object):
         else: 
             raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {self.alternative}')
 
-    def compute_null_cluster_stats(self, num_permutations):
+    def compute_null_cluster_stats(self, num_permutations,max_cluster_output='cluster_stat'):
 
         '''
         Compute null distribution (length = num_permutations) of maximum cluster statistics by running tfr regressions with permuted predictor of interest. 
@@ -220,7 +220,7 @@ class TFR_Cluster_Test(object):
         null_tstat_generator = (self.permuted_tfr_regression() for _ in range(num_permutations)) # generator saves memory and improves efficiency. 
 
         # Compute the maximum cluster statistics for each permutation by iterating through generator object and evaluating every permuted_tfr_regression. 
-        permuted_cluster_stats = [self.max_tfr_cluster(tstat_gen,output='cluster_stat') for tstat_gen in null_tstat_generator]
+        permuted_cluster_stats = [self.max_tfr_cluster(tstat_gen,max_cluster_output) for tstat_gen in null_tstat_generator]
 
         # Return list of null maximum cluster statistics for each 
         if self.alternative == 'two-sided': 
