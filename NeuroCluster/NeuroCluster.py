@@ -33,7 +33,7 @@ class TFR_Cluster_Test(object):
 
     '''
 
-    def __init__(self, tfr_data, predictor_data, permute_var, ch_name, **kwargs):
+    def __init__(self, tfr_data, predictor_data, permute_var, ch_name, alternative='two-sided', alpha=0.05, **kwargs):
 
         '''
         Args:
@@ -41,6 +41,8 @@ class TFR_Cluster_Test(object):
         - predictor_data : (pd.DataFrame) Task-based regressor data with dtypes continuous/discreet(int64/float) or categorical(pd.Categorical). DataFrame of (n_epochs,n_regressors).
         - permute_var    : (str) Column label for primary regressor of interest. Array of 1d integers or floats (n_epochs,).
         - ch_name        : (str) Unique electrode identification label. String of characters.  
+        - alternative    : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or 'less'. Default is 'two-sided'.
+        - alpha          : (float) Significance level - Threshold for allowable type 1 error rates. Default is 0.05.
         - **kwargs       : (optional) alternative, alpha, cluster_shape
         '''
 
@@ -51,7 +53,8 @@ class TFR_Cluster_Test(object):
         self.permute_var     = permute_var # variable to permute in regression model 
         self.ols_dmatrix     = pd.get_dummies(predictor_data,drop_first=True) # converts only categorical variables into one dummy coded vector
         self.permute_var_idx = np.where(self.ols_dmatrix.columns  == permute_var)[0][0] # column index of regressor of interest in dummy coded dmatrix
-        
+        self.alternative     = alternative # Type of hypothesis test for t-distribution. Must be 'two-sided', 'greater', 'less'. Default is 'two-sided'.
+        self.alpha           = alpha # Significance level 
 
     def tfr_regression(self):
 
@@ -68,7 +71,9 @@ class TFR_Cluster_Test(object):
                                                            for pixel_data in np.resize(self.tfr_data,(self.tfr_data.shape[0],np.prod(self.tfr_dims))).T) 
         
         tfr_betas,tfr_tstats = list(zip(*expanded_results))
-        
+
+        del expanded_results # improve speed, reduce memory load 
+
         return np.resize(np.array(tfr_betas),(self.tfr_data.shape[1],self.tfr_data.shape[2])), np.resize(np.array(tfr_tstats),
                                                                                                          (self.tfr_data.shape[1],self.tfr_data.shape[2]))
 
@@ -91,7 +96,7 @@ class TFR_Cluster_Test(object):
         # Return the estimated beta coefficient and tvalue for predictor of interest only (permute_var)
         return (pixel_model.params[self.permute_var_idx + 1],pixel_model.tvalues[self.permute_var_idx + 1])
 
-    def max_tfr_cluster(self,tfr_tstats,alternative='two-sided',output='all',clust_struct=np.ones(shape=(3,3))):
+    def max_tfr_cluster(self,tfr_tstats,output='all',clust_struct=np.ones(shape=(3,3))):
 
         '''
         Identify time-frequency clusters of neural activity that are significantly correlated with the predictor of interest (self.permute_var). Clusters are identified 
@@ -99,7 +104,6 @@ class TFR_Cluster_Test(object):
 
         Args:
         - tfr_tstats       : (np.array) Pixel regression tstatistic from coefficient estimates for predictor of interest. Array of floats (n_freqs,n_times). 
-        - alternative      : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or 'less'. Default is 'two-sided'. 
         - output           : (str) Output format for max cluster statistics. Must be 'all', 'cluster_stat', or 'freq_time'. Default is 'all'.
         - clust_struct     : (np.array) Binary matrix to specify cluster structure for scipy.ndimage.label. Array of (3,3). 
                                         Default is np.ones.shape(3,3), to allow diagonal cluster pixels (Not the scipy.ndimage.label default).
@@ -116,7 +120,7 @@ class TFR_Cluster_Test(object):
         
         max_cluster_data = []
         # Create binary matrix from tfr_tstats by thresholding pixel t-statistics by tcritical. (1 = pixel t-statistic exceeded tcritical threshold)
-        for binary_mat in self.threshold_tfr_tstat(tfr_tstats,alternative):
+        for binary_mat in self.threshold_tfr_tstat(tfr_tstats):
 
             # test whether there are any pixels above tcritical threshold
             if np.sum(binary_mat) != 0: 
@@ -151,56 +155,53 @@ class TFR_Cluster_Test(object):
         
         return max_cluster_data
 
-    def compute_tcritical(self,alternative ='two-sided',alpha=0.05):
+    def compute_tcritical(self):
 
         '''
         Calculate critical t-values for regression model.
-        
-        Args:
-        - alternative : (str) Alternate hypothesis for t-test. Must be 'two-sided','greater', or 'less'. Default is 'two-sided'.
-        - alpha       : (float) Significance level. Default is 0.05.
 
         Returns:
-        - tcritical   : (float) Critical t-statistic for hypothesis test. Positive value when alternative = 'two-sided' or 'greater'. Negative when alternative = 'less'. 
+        - tcritical   : (float) Critical t-statistic for hypothesis test. Positive value when alternative = 'two-sided' or 'greater'. 
+                                Negative when alternative = 'less'. 
         '''
 
         # Set number of tails for t-tests using 'alternative' parameter input string. 
             # tails = 2 if alternative = 'two-sided' (two tailed hypothesis test)
             # tails = 1 if alternative = 'greater' or 'less' (one tailed hypothesis test)
-        tails = len(alternative.split('-')) 
+        tails = len(self.alternative.split('-')) 
 
         # Calculate degrees of freedom (N-k-1) 
         deg_free = float(len(self.ols_dmatrix)-len(self.ols_dmatrix.columns)-1) #### predictor data must only include regressors in columns
 
         # Return tcritical from t-distribution. Significance level is alpha/2 for two tailed hypothesis tests (alternative = 'two-sided').
-        return (t.ppf(1-(alpha/tails),deg_free) if alternative != 'less' else np.negative(t.ppf(1-(alpha/tails),deg_free)))
+        return (t.ppf(1-(self.alpha/tails),deg_free) if self.alternative != 'less' else np.negative(t.ppf(1-(self.alpha/tails),deg_free)))
 
-    def threshold_tfr_tstat(self,tfr_tstats,alternative='two-sided'):
+    def threshold_tfr_tstat(self,tfr_tstats):
 
         '''
         Threshold tfr t-statistic matrix using tcritical.
 
         Args:
         - tfr_tstats  : (np.array) Matrix of t-statistics from pixel-wise regressions. Array of floats (n_freqs, n_times). 
-        - alternative : (str) Type of hypothesis test for t-distribution. Must be 'two-sided', 'greater', 'less'. Default is 'two-sided'.
 
         Returns:
         - binary_mat  : (np.array) Binary matrix results of pixel-wise t-tests. Pixel = 1 when tstatistic > tcritical, else pixel = 0. 
                                    List of array(s) (n_freqs, n_times).
         '''
 
-        if alternative == 'two-sided': # return positive and negative t-critical for two-sided hypothesis test 
-            return [(tfr_tstats>=self.compute_tcritical(alternative='two-sided')).astype(int), (tfr_tstats<=np.negative(self.compute_tcritical(alternative='two-sided'))).astype(int)]
+        if self.alternative == 'two-sided': # return positive and negative t-critical for two-sided hypothesis test 
+            return [(tfr_tstats>=self.compute_tcritical()).astype(int), 
+                    (tfr_tstats<=np.negative(self.compute_tcritical(alternative='two-sided'))).astype(int)]
 
-        elif alternative == 'greater': # return positive t-critical for one-sided hypothesis test 
-            return [(tfr_tstats>=self.compute_tcritical(alternative='greater')).astype(int)]
+        elif self.alternative == 'greater': # return positive t-critical for one-sided hypothesis test 
+            return [(tfr_tstats>=self.compute_tcritical()).astype(int)]
 
-        elif alternative == 'less': # return negative t-critical for one-sided hypothesis test 
-            return [(tfr_tstats<=self.compute_tcritical(alternative='less')).astype(int)] 
+        elif self.alternative == 'less': # return negative t-critical for one-sided hypothesis test 
+            return [(tfr_tstats<=self.compute_tcritical()).astype(int)] 
         else: 
-            raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {alternative}')
+            raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {self.alternative}')
 
-    def compute_null_cluster_stats(self, num_permutations, alternative='two-sided'):
+    def compute_null_cluster_stats(self, num_permutations):
 
         '''
         Compute null distribution (length = num_permutations) of maximum cluster statistics by running tfr regressions with permuted predictor of interest. 
@@ -209,7 +210,6 @@ class TFR_Cluster_Test(object):
 
         Args:
         - num_permutations   : (int) Number of permutation tests to perform. For every permutation iteration, predictor of interest is randomly permuted. 
-        - alternative        : (str) Type of hypothesis test for t-distribution. Must be 'two-sided', 'greater', 'less'. Default is 'two-sided'.
 
         Returns:
         - null_cluster_stats : (list) List of maximum cluster statistics. If alternative = 'two-sided', returns two lists (positive & negative cluster stats).
@@ -223,16 +223,16 @@ class TFR_Cluster_Test(object):
         permuted_cluster_stats = [self.max_tfr_cluster(tstat_gen,output='cluster_stat') for tstat_gen in null_tstat_generator]
 
         # Return list of null maximum cluster statistics for each 
-        if alternative == 'two-sided': 
+        if self.alternative == 'two-sided': 
             # Returns the positive and negative null distributions as nested lists. First element is always the positive null cluster stats. 
             return [[null_stat[0]['cluster_stat'] for null_stat in permuted_cluster_stats], [null_stat[1]['cluster_stat'] for null_stat in permuted_cluster_stats]]        
 
-        elif (alternative == 'greater') | (alternative == 'less'):
+        elif (self.alternative == 'greater') | (self.alternative == 'less'):
             # Returns the null cluster stat distribution as a list. If alternative = 'greater', cluster stats are positive. If 'less', cluster stats are negative. 
             return [null_stat[0]['cluster_stat'] for null_stat in permuted_cluster_stats]
 
         else: 
-            raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {alternative}')
+            raise ValueError('Alternative hypothesis must be two-sided, greater, or less not {self.alternative}')
 
 
     def permuted_tfr_regression(self,n_jobs=-1,verbose=0):
@@ -262,7 +262,7 @@ class TFR_Cluster_Test(object):
         # return permuted tstatistics as 2D array (shape = tfr_dims) to compute null tfr cluster statistics  
         return np.resize(np.array(permuted_tstats), (self.tfr_data.shape[1],self.tfr_data.shape[2]))
 
-    def cluster_significance_test(self, max_cluster_data, null_distribution, alternative='two-sided'):
+    def cluster_significance_test(self, max_cluster_data, null_distribution):
 
         '''
         Compute non-parametric pvalue of maximum tfr cluster statistic from distribution of null permutation distribution.
@@ -270,20 +270,25 @@ class TFR_Cluster_Test(object):
         Args:
         - max_cluster_data  : (list) Real tfr cluster data. If alternative = 'two-sided', len = 2. Else, length = 1. List of dict(s).
         - null_distribution : (list) Null cluster statistics from permutations. List of len=num_permutations. If alternative='two-sided', two nested lists
-        - alternative       : (str)  Alternate hypothesis for t-test. Must be 'two-sided','greater', or 'less'. Default is 'two-sided'.
         
         Returns:
         - cluster_pvalue    : (list) P-value(s) for clusters in max_cluster_data (# null_stats > cluster_stat)/num permutations) List of float(s). 
         '''
 
         cluster_pvalue = []
+        
+        if self.alternative == 'two-sided':
         # Iterate through real max cluster statistics info and null distribution simultaneously
-        for cluster, null_stats in list(zip(max_cluster_data,null_distribution)): # cluster_stat and null_stats should have the same sign
-            # check whether sign of cluster_stat and null_stats is the same
-            if np.sign(cluster['cluster_stat']) == np.sign(null_stats[0]): 
-                # pvalue = (number of null stats more extreme than observed maximum clustre statistic)/(number of permutations)
-                pval = np.sum(np.abs(np.array(null_stats)) > np.abs(cluster['cluster_stat']))/len(null_stats) 
-                cluster_pvalue.append(pval) # add pval to cluster_pvalue list
-            else: # if the sign of the max cluster data is not the same as the corresponding null distribution, raise an error 
-                raise ValueError('Signs of max cluster stats and null distributions do not align') 
-        return cluster_pvalue
+            for cluster, null_stats in list(zip(max_cluster_data,null_distribution)): # cluster_stat and null_stats should have the same sign
+                # check whether sign of cluster_stat and null_stats is the same
+                if np.sign(cluster['cluster_stat']) == np.sign(null_stats): 
+                    # pvalue = (number of null stats more extreme than observed maximum clustre statistic)/(number of permutations)
+                    pval = np.sum(np.abs(np.array(null_stats)) > np.abs(cluster['cluster_stat']))/null_stats.shape[0]
+                    cluster_pvalue.append(pval) # add pval to cluster_pvalue list
+                else: # if the sign of the max cluster data is not the same as the corresponding null distribution, raise an error 
+                    raise ValueError('Signs of max cluster stats and null distributions do not align') 
+            return cluster_pvalue
+        else: 
+            pval = np.sum(np.abs(np.array(null_distribution)) > np.abs(max_cluster_data[0]['cluster_stat'])) / len(
+                null_distribution)            
+            return [pval]
