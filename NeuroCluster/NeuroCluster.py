@@ -52,7 +52,7 @@ class TFR_Cluster_Test(object):
         self.ch_name         = ch_name # channel name for single electrode tfr data
         self.predictor_data  = predictor_data # single subject behav data
         self.target_var      = target_var # variable to permute in regression model 
-        self.ols_dmatrix     = pd.get_dummies(predictor_data,drop_first=True) # converts only categorical variables into one dummy coded vector
+        self.ols_dmatrix     = pd.get_dummies(predictor_data,drop_first=True, dtype=float) # converts only categorical variables into one dummy coded vector
         self.target_var_idx  = np.where(self.ols_dmatrix.columns  == target_var)[0][0] # column index of regressor of interest in dummy coded dmatrix
         self.alternative     = alternative # Type of hypothesis test for t-distribution. Must be 'two-sided', 'greater', 'less'. Default is 'two-sided'.
         self.alpha           = alpha # Significance level 

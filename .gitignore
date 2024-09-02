@@ -32,3 +32,5 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+paper/~$uroCluster_V2_CM.docx
+paper/~$per_text.docx
