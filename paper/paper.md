@@ -21,7 +21,7 @@ authors:
     orcid: 0000-0001-8739-5962
     corresponding: false # (This is how to denote the corresponding author)
     affiliation: "2, 3"
-  - name: Ignacio Saez
+  - name: Ignacio Saezfth
     orcid: 0000-0003-0651-2069
     corresponding: true # (This is how to denote the corresponding author)
     affiliation: "1, 2, 3, 4, 5"
@@ -36,7 +36,7 @@ affiliations:
    index: 4
 - name: Department of Neurology, The Mount Sinai Hopsital, NY, NY 
    index: 5
-date: 30 August 2024
+date: 03 September 2024
 bibliography: paper.bib
 
 ---
