@@ -43,15 +43,7 @@ bibliography: paper.bib
 
 # Summary
 
-The forces on stars, galaxies, and dark matter under external gravitational
-fields lead to the dynamical evolution of structures in the universe. The orbits
-of these bodies are therefore key to understanding the formation, history, and
-future state of galaxies. The field of "galactic dynamics," which aims to model
-the gravitating components of galaxies to study their structure and evolution,
-is now well-established, commonly taught, and frequently used in astronomy.
-Aside from toy problems and demonstrations, the majority of problems require
-efficient numerical tools, many of which require the same base code (e.g., for
-performing numerical orbit integration).
+Cognitive neurophysiology offers a novel framework for studying cognitive brain-behavior relationships by relating electrophysiological signals to complex behaviors. With the advent of new biotechnologies and neurosurgical practices, large-scale human (and animal) intracranial electrophysiological recordings are becoming widely accessible. As a result, cognitive neurophysiologists can design cognitive experiments that leverage both the spatiotemporal resolution of electrophysiological data and the complexity of continuous behavioral variables (example citations). Analyzing these data requires sophisticated statistical methods that can interpret multidimensional neurophysiological data and dynamic, continuous behavioral variables. Classical statistical frameworks for analyzing event-related time series data are ill-equipped to manage the high dimensionality and behavioral complexity of cognitive neurophysiology studies. NeuroCluster is an open-source Python toolbox for analysis of multivariate electrophysiological data related to complex, continuous behavioral variables. NeuroCluster introduces a novel statistical approach, which uses non-parametric cluster-based permutation testing to identify time-frequency clusters of oscillatory power modulations that significantly encode time-varying, continuous behavioral variables. It also supports multivariate analyses by allowing for multiple behavioral predictors to model neural activity. NeuroCluster addresses a methodological gap in statistical approaches to relate continuous, cognitive predictors to underlying electrophysiological activity with time and frequency resolution, to determine the neurocomputational processes giving rise to complex behaviors. 
 
 # Statement of need
 
