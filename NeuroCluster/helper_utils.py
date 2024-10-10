@@ -105,6 +105,39 @@ def prepare_anat_dic(roi, file_path):
 
     return anat_dic
 
+def compare_mne_permutation_cluster_test(permute_var,tfr_data,sample_behav,split_method='median',n_permutations=1000):
+    """
+    Function to compare NeuroCluster's permutation cluster test to mne's permutation cluster test
+
+    Args:
+    permute_var (str): variable to permute
+    tfr_data (np.array): 3D array of shape (num trials x num frequencies x num timepoints)
+    sample_behav (pd.DataFrame): dataframe containing predictor variables
+    split_method (str): method to split the permute_var variable (currently accepts either 'median' or 'mean')
+    n_permutations (int): number of permutations to run
+
+    Returns:
+    Prints out whether significant clusters found by mne's permutation cluster test. 
+
+    """
+    if split_method == 'median':
+        variable_of_interest = sample_behav[permute_var]
+        median = np.median(variable_of_interest)
+        low_split = tfr_data[variable_of_interest < median, :, :]    
+        high_split = tfr_data[variable_of_interest >= median, :, :]
+    elif split_method == 'mean':
+        variable_of_interest = sample_behav[permute_var]
+        mean = np.mean(variable_of_interest)
+        low_split = tfr_data[variable_of_interest < mean, :, :]    
+        high_split = tfr_data[variable_of_interest >= mean, :, :]
+    _, clusters, cluster_pv, _ = mne.stats.permutation_cluster_test([low_split, high_split], n_permutations=n_permutations, tail=0)
+    for i_c, c in enumerate(clusters):
+        c = c[0]
+        if cluster_pv[i_c] <= 0.05:
+            print(f"Cluster {i_c} p-value: {cluster_pv[i_c]}")
+        else:
+            print("No significant clusters found")
+
 def create_directory(directory_path):
     """Create a directory if it doesn't exist."""
     if not os.path.exists(directory_path):
