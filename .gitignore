@@ -11,3 +11,26 @@ scripts/__pycache__/plotting_utils.cpython-310.pyc
 scripts/__pycache__/tfr_cluster_test.cpython-310.pyc
 .DS_Store
 scripts/.DS_Store
+dist/NeuroCluster-0.1.0-py3.10.egg
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+paper/~$uroCluster_V2_CM.docx
+paper/~$per_text.docx
