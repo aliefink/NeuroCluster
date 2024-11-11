@@ -1,5 +1,5 @@
 ---
-title: 'NeuroCluster: A Python package to detect electrophysiological signals related to complex behaviors using time-frequency resolved multiple regression and non-parametric cluster-based permutation testing.'
+title: 'NeuroCluster: A Python toolbox for nonparametric cluster-based statistical testing of neurophysiological data with respect to continuous predictors.'
 tags:
   - Python
   - neurophysiology
@@ -9,7 +9,7 @@ tags:
   - human intracranial electrophysiology
   - complex behavioral predictors
 authors:
-  - name: Alexandra Fink-Skular
+  - name: Alexandra Fink Skular
     orcid: 0000-0003-1648-4604
     equal-contrib: true
     affiliation: "1, 2, 3" # (Multiple affiliations must be quoted)
