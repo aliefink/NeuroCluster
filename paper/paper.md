@@ -43,90 +43,48 @@ bibliography: paper.bib
 
 # Summary
 
-Cognitive neurophysiology offers a novel framework for studying cognitive brain-behavior relationships by relating electrophysiological signals to complex behaviors. With the advent of new biotechnologies and neurosurgical practices, large-scale human (and animal) intracranial electrophysiological recordings are becoming widely accessible. As a result, cognitive neurophysiologists can design cognitive experiments that leverage both the spatiotemporal resolution of electrophysiological data and the complexity of continuous behavioral variables (example citations). Analyzing these data requires sophisticated statistical methods that can interpret multidimensional neurophysiological data and dynamic, continuous behavioral variables. Classical statistical frameworks for analyzing event-related time series data are ill-equipped to manage the high dimensionality and behavioral complexity of cognitive neurophysiology studies. NeuroCluster is an open-source Python toolbox for analysis of multivariate electrophysiological data related to complex, continuous behavioral variables. NeuroCluster introduces a novel statistical approach, which uses non-parametric cluster-based permutation testing to identify time-frequency clusters of oscillatory power modulations that significantly encode time-varying, continuous behavioral variables. It also supports multivariate analyses by allowing for multiple behavioral predictors to model neural activity. NeuroCluster addresses a methodological gap in statistical approaches to relate continuous, cognitive predictors to underlying electrophysiological activity with time and frequency resolution, to determine the neurocomputational processes giving rise to complex behaviors. 
-
+Cognitive neurophysiology offers a unique framework for studying cognitive brain-behavior relationships by relating electrophysiological signals to complex behaviors. With the advent of new technical and behavioral paradigms, researchers can design cognitive experiments that leverage both the spatiotemporal resolution of electrophysiological data and the complexity of continuous behavioral variables. Analyzing these data requires sophisticated statistical methods that can interpret multidimensional neurophysiological data and dynamic, continuous behavioral variables. Often used statistical frameworks for nonparametric, cluster-based statistical tests are specifically focused on the contrast between discrete behavioral conditions but are not suitable for assessing how continuous variables predict the occurrence of clusters in neurophysiological data. NeuroCluster is an open-source Python toolbox for analysis of two-dimensional electrophysiological data (e.g. time-frequency representations)  related to multivariate and continuous behavioral variables.  NeuroCluster introduces a statistical approach which uses nonparametric cluster-based permutation testing in tandem with linear regression to identify two-dimensional clusters of neurophysiological activity that significantly encodes time-varying, continuous behavioral variables. Uniquely, it also supports multivariate analyses by allowing for multiple behavioral predictors to model neural activity. NeuroCluster addresses a methodological gap in statistical approaches to relate continuous, cognitive predictors to underlying electrophysiological activity with time and frequency resolution, to determine the neurocomputational processes giving rise to complex behaviors. 
 # Statement of need
 
-`Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
-enables wrapping low-level languages (e.g., C) for speed without losing
-flexibility or ease-of-use in the user-interface. The API for `Gala` was
-designed to provide a class-based and user-friendly interface to fast (C or
-Cython-optimized) implementations of common operations such as gravitational
-potential and force evaluation, orbit integration, dynamical transformations,
-and chaos indicators for nonlinear dynamics. `Gala` also relies heavily on and
-interfaces well with the implementations of physical units and astronomical
-coordinate systems in the `Astropy` package [@astropy] (`astropy.units` and
-`astropy.coordinates`).
+`NeuroCluster` addresses a methodological gap in cognitive and behavioral neuroscience, by providing a Python-based statistical toolbox to relate continuous predictors to two-dimensional neurophysiological activity. Continuous predictors vary over an experimental session, reflecting dynamic behaviors, underlying cognitive processes, complex movements, trial-varying experimental conditions, perceptual signals, or value-based trial outcomes [@Collins2022; @Hoy2021; @Mathis2020; @ODoherty2007a]. Standard analytical approaches for relating complex behavioral variables to neuronal activity sacrifice the complexity of neurophysiological signals by reducing the dimensionality of neuronal timeseries data (e.g., averaging across temporal, spectral, or spatial domains, or dimensionality reduction) [@Crosse2016; @LopezPersem2020; @Rey2015; @Saboo2019; @Saez2018; @Stokes2016]. Conversely, analysis methods that preserve the complexity of neurophysiological data (i.e., two-dimensional timeseries) constrain behavioral predictors to discrete conditions [@CandiaRivera2022; @Domenech2020; @Kosciessa2020; @MarcoPallares2015; @Maris2007]. Directly linking continuous experimental variables to two-dimensional physiological timeseries data offers a rigorous way to study brain-behavior relationships, by maintaining the complexity of dynamic behavior, without sacrificing the resolution of event-related neurophysiological activity.
 
-`Gala` was designed to be used by both astronomical researchers and by
-students in courses on gravitational dynamics or astronomy. It has already been
-used in a number of scientific publications [@Pearson:2017] and has also been
-used in graduate courses on Galactic dynamics to, e.g., provide interactive
-visualizations of textbook material [@Binney:2008]. The combination of speed,
-design, and support for Astropy functionality in `Gala` will enable exciting
-scientific explorations of forthcoming data releases from the *Gaia* mission
-[@gaia] by students and experts alike.
+`NeuroCluster` uses cluster-based permutation testing to identify significant two-dimensional clusters with respect to continuous task variables. Cluster-based nonparametric statistical testing is a standard approach to analyze two-dimensional event-related time series data, while controlling for multiple comparisons and reducing family-wise error rates [@Cohen2014; @Groppe2011; @Maris2012; @Maris2007; @Nichols2002]. Neurophysiological activity is typically aggregated by condition to perform a two-sample cluster-based permutation test, which tests whether the neuronal encoding patterns differ between two discrete task conditions, rather than continuous, trial-varying features [@Bullmore1999; @Maris2007]. While two-sample cluster-based permutation tests provide a nonparametric statistical inference tool for identifying the presence of significant clusters of activity between two conditions, they are insufficient for identifying the presence of clusters as a function of continuously varying predictors. `NeuroCluster` provides a solution to this analytical gap by performing linear regressions at individual points across the 2D neural matrix. This approach enables users to quantify the degree to which a continuous predictor is related to neurophysiological activity at the pixel-level and to perform analyses with multivariate behavioral data, by incorporating multiple continuous or categorical covariates in the regression models. The t-statistics corresponding to the predictor of interest from the pixel-wise regressions are thresholded by a critical t-statistic to control for the FDR, creating a binary 2D matrix [@Genovese2002]. The binary 2D matrix is then used to identify putative 2D clusters of activation related to the continuous predictor of interest. This process is repeated many times with the predictor of interest randomly permuted to produce a surrogate distribution of 2D clusters. Clusters that survive cluster-based permutation testing are classified as significant regions of activation with respect to the specified continuous predictor.
 
-# NeuroCluster
+`NeuroCluster` is applicable for numerous analysis goals; the major use cases are performing an initial exploratory analysis to generate specific hypotheses, determine data-driven windows interest, or to identify regional patterns of significant clusters within and between subjects. Future adaptations of `NeuroCluster` may implement mixed effects regressions, nonlinear mapping models, or group-level analysis frameworks [@Bianchi2019; @Ivanova2022; @Konig2024; @Yu2022]. We demonstrate our approach with human intracranial local field potential data, but NeuroCluster is applicable for all types of two-dimensional neurophysiological measures (e.g., spatiotemporal clusters from EEG/MEG, cross-frequency interactions). To our knowledge, `NeuroCluster` presents a novel Python-based statistical software package. `NeuroCluster` is designed to supplement existing Python-based electrophysiological analysis toolboxes [@Donoghue2020; @Gramfort2013; @Kosciessa2020; @Whitten2011], particularly MNE-Python.
 
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
 
-Double dollars make self-standing equations:
+# NeuroCluster Documentation
 
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
+`NeuroCluster` is accompanied by a detailed tutorial which outlines the workflow \autoref{fig:Fig1} for implementing this approach with time-frequency power estimates from multi-region LFP recording.
 
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
 
-# Documentation
+![Fig 1. NeuroCluster workflow. This approach involves three key steps: (1) determine cluster statistic in true data, (2) generate a null distribution of cluster statistics by permuting dataset, (3) determine significance of true cluster statistic against null distribution.\label{fig:Fig1}](../NeuroCluster/workflow/Figure1_workflow.png)
 
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
+Below we outline the statistical approach implemented by `NeuroCluster` for performing nonparametric permutation-based cluster testing using time-frequency resolved power estimates from neural data estimated using [@Python-MNE] and continuous predictors (i.e., latent cognitive processes, behavior, or experimental conditions). In these example data, we are testing the hypothesis that RPEs are significantly encoded in the electrophysiological signal from a given iEEG channel time-frequency representation (TFR). 
 
-Double dollars make self-standing equations:
+## 1.	Determine cluster statistic in true data 
 
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
+#### A.   Define clusters: At each time-frequency index, we perform a linear univariate (or multivariate) regression using behaviorally-derived independent variables (e.g., latent cognitive variables, behavioral measures, task conditions) to predict neuronal activity (i.e., power). The β coefficient represents the strength and direction of the relationship between each independent variable and the dependent variable. It is estimated from the regression model and reflects how changes in the independent variable are associated with changes in power at the specific time-frequency pair. Pixel-wise regressions are parallelized for speed. For each time-frequency pair, the β coefficient for the regressor of interest (the independent variable of primary interest) is extracted from the regression results (Fig 2A). A t-statistic is computed for the β coefficient to capture how significantly different it is from zero (Fig 2B). A significance threshold is applied to the t-statistics of the β coefficient for the regressor of interest. If the t-statistic for a time-frequency pair exceeds the significance threshold, the pair is deemed significant. Clusters are then defined as adjacent time-frequency pairs where all pairs within the cluster have t-statistics exceeding the threshold, according to the test's desired tails (Fig 2C).
 
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
+#### B.	Compute cluster statistics: For each identified cluster, sum the t-statistics of all time-frequency pairs within the cluster. In a two-tailed test (the default), compute both the maximum and minimum cluster sums (Fig 2D).
 
-# Citations
 
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
+## 2. Generate null distribution of cluster statistics
 
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
+#### A.	Permutation procedure: Labels for the behavioral predictor of interest are shuffled for the desired number of permutations. 
 
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
+#### B.	Recalculate cluster statistic: Steps 1A/1B are repeated to define clusters and compute cluster statistics for each permuted dataset. 
 
-# Figures
+#### C.	Construct null distribution: The cluster statistics from all permutations are compiled to create a null distribution, representing the distribution of cluster statistics under the null hypothesis (Fig 2E). The permuted TFR regressions are also parallelized at the pixel-level, while each permutation is performed sequentially. We tested many iterations of these functions with different parallelization approaches and sequential permutation-level computations with pixel-level parallelization within each TFR regression was the fastest method. 
 
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
+## 3.	Determine cluster significance 
 
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
+#### A.	Compare true cluster statistic to null distribution to compute p-values: The proportion of cluster statistics in the null distribution falling above (or below) the true cluster statistic(s) determines the p-value associated with the cluster(s) identified in the true data (Fig 2E). 
+
+![Fig  2. NeuroCluster methods. A. β coefficients for continuous predictor of interest (RPE) predicting power in given time-frequency pair (red outline = maximum positive cluster; blue outline = maximum negative cluster). B. T-statistics corresponding with βRPE coefficients. C. Clusters as determined using t-critical threshold. D. Maximum positive and negative clusters determined by summing t-statistics in identified clusters. E. Null distribution of cluster statistics generated by permuting dataset for predictor of interest (100 permutations; red dashed line = true cluster statistic).\label{fig:Fig2}](../NeuroCluster/workflow/Figure2.png)
 
 # Acknowledgements
 
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
+We acknowledge contributions from Shawn Rhoads and support from Xiaosi Gu and Angela Radulescu during the genesis of this project.
 
 # References
