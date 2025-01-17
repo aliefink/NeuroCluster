@@ -162,15 +162,15 @@ Below is a schematic of the NeuroCluster workflow and quick summary. A more deta
 
 * **Purpose**: Generates visualizations for each step of the analysis:
 
-* ```beta_plot```: Visualizes beta coefficients.
+* **```beta_plot```:** Visualizes beta coefficients.
 
-* ```tstat_plot```: Displays the t-statistics matrix.
+* **```tstat_plot```:** Displays the t-statistics matrix.
 
-* ```cluster_plot```: Shows significant clusters.
+* **```cluster_plot```:** Shows significant clusters.
 
-* ```max_cluster_plot```: Highlights the maximum observed cluster.
+* **```max_cluster_plot```:** Highlights the maximum observed cluster.
 
-* ```null_distribution_plot```: Plots the null distribution of cluster statistics.
+* **```null_distribution_plot```:** Plots the null distribution of cluster statistics.
 
 
 * **```create_directory()```:** Ensures the output directory exists.
