@@ -5,7 +5,7 @@ import seaborn as sns
 from matplotlib.text import OffsetFrom
 from scipy.stats import  t
 
-def plot_tcritical(cluster_test,figsize=(5.5,4.5),dpi=125,context='talk',tcrit_color='red'):
+def plot_tcritical(cluster_test,freqs,figsize=(5.5,4.5),dpi=125,context='talk',tcrit_color='red'):
 
     """
     Plots the T-Distribution used to calculate t-critical for a given hypothesis test.  
@@ -66,6 +66,19 @@ def plot_tcritical(cluster_test,figsize=(5.5,4.5),dpi=125,context='talk',tcrit_c
             xy=(ax.get_xlim()[1],ax.get_ylim()[1]),xycoords='data',fontsize=12,
             xytext=(-100,-60),textcoords='offset points')
 
+        # Get y-tick positions that are actually within the y-axis limits
+        yticks = ax.get_yticks()
+        ymin, ymax = ax.get_ylim()
+        visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+        # Select corresponding values from `freqs` (matching number of visible ticks)
+        selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+        selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+        # Ensure y-tick positions and labels align correctly
+        ax.set_yticks(visible_yticks)
+        ax.set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
+
     elif cluster_test.alternative == 'greater':
         # x and y values of t-distribution line
         l_x, l_y = lines.get_data()
@@ -79,6 +92,19 @@ def plot_tcritical(cluster_test,figsize=(5.5,4.5),dpi=125,context='talk',tcrit_c
                     f'\n'+rf'$t^{{*}}\approx{np.round(tcrit,2)}$',
                     xy=(ax.get_xlim()[1],ax.get_ylim()[1]),xycoords='data',fontsize=12,
                     xytext=(-100,-60),textcoords='offset points')
+
+        # Get y-tick positions that are actually within the y-axis limits
+        yticks = ax.get_yticks()
+        ymin, ymax = ax.get_ylim()
+        visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+        # Select corresponding values from `freqs` (matching number of visible ticks)
+        selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+        selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+        # Ensure y-tick positions and labels align correctly
+        ax.set_yticks(visible_yticks)
+        ax.set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
     else:
         # x and y values of t-distribution line
         l_x, l_y = lines.get_data()
@@ -92,12 +118,25 @@ def plot_tcritical(cluster_test,figsize=(5.5,4.5),dpi=125,context='talk',tcrit_c
             f'\n'+rf'$t^{{*}}\approx{np.round(tcrit,2)}$',
             xy=(ax.get_xlim()[1],ax.get_ylim()[1]),xycoords='data',fontsize=12,
             xytext=(-100,-60),textcoords='offset points')
-    
+        
+        # Get y-tick positions that are actually within the y-axis limits
+        yticks = ax.get_yticks()
+        ymin, ymax = ax.get_ylim()
+        visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+        # Select corresponding values from `freqs` (matching number of visible ticks)
+        selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+        selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+        # Ensure y-tick positions and labels align correctly
+        ax.set_yticks(visible_yticks)
+        ax.set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
+
     sns.despine()
     plt.close(fig)
     return fig
 
-def plot_beta_coef(betas, cluster_test,figsize=(7,5),dpi=125,context='talk',cmap='Spectral_r'):
+def plot_beta_coef(betas, cluster_test, freqs, figsize=(7, 5), dpi=125, context='talk', cmap='Spectral_r'):
     """
     Plots the beta coefficients for regressor of interest from a linear regression. 
 
@@ -111,33 +150,51 @@ def plot_beta_coef(betas, cluster_test,figsize=(7,5),dpi=125,context='talk',cmap
 
     Returns:
     - None: displays a plot of the beta coefficients.
-
     """
-    sns.set_context(context,rc={'axes.linewidth': 1})
-    fig = plt.figure(figsize=figsize,dpi = dpi,layout='constrained')
-    plt.imshow(betas, interpolation = 'Bicubic', cmap=cmap, aspect='auto', origin='lower')  
-    plt.tick_params(size=5,width=1)
-    plt.suptitle(rf'TFR {cluster_test.ch_name} $\beta_{{{{target}}}}$ coefficients            ',fontsize=18)
-    cbar = plt.colorbar()
-    # cbar.set_label(r'$Beta $Coefficient')
-    cbar.set_label(fr'$\beta_{{{cluster_test.target_var}}} coefficient$',fontsize=18)
-    cbar.ax.tick_params(size=5,width=1,length=3)
+    sns.set_context(context, rc={'axes.linewidth': 1})
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    
+    # Plot the beta coefficients using imshow
+    cax = ax.imshow(betas, interpolation='bicubic', cmap=cmap, aspect='auto', origin='lower')  
+    
+    # Get y-tick positions that are actually within the y-axis limits
+    yticks = ax.get_yticks()
+    ymin, ymax = ax.get_ylim()
+    visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
 
-    # make title dynamic depending on whether or not you are controlling for other variables
+    # Select corresponding values from `freqs` (matching number of visible ticks)
+    selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+    selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+    # Ensure y-tick positions and labels align correctly
+    ax.set_yticks(visible_yticks)
+    ax.set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
+
+    # Customize color bar
+    cbar = plt.colorbar(cax, ax=ax)
+    cbar.set_label(fr'$\beta_{{{cluster_test.target_var}}}$ coefficient', fontsize=18)
+    cbar.ax.tick_params(size=5, width=1, length=3)
+
+    # Set title and axes labels
+    ax.set_title(rf'TFR {cluster_test.ch_name} $\beta_{{{{target}}}}$ coefficients', fontsize=18)
+    
+    # Make title dynamic depending on whether or not you are controlling for other variables
     if cluster_test.predictor_data.columns.tolist() == [cluster_test.target_var]:
-        plt.title(rf'Target Variable: ${cluster_test.target_var}$',fontsize=12)
+        ax.set_title(rf'Target Variable: ${cluster_test.target_var}$', fontsize=12)
     else:
         beh_variables = cluster_test.predictor_data.columns.tolist().copy()
         control_variables = [var for var in beh_variables if var != cluster_test.target_var] 
         control_variables_str = ", ".join(control_variables)
-        plt.title(rf'Target Variable: ${cluster_test.target_var}$, Covariate(s): ${control_variables_str}$',fontsize=12)
-    plt.ylabel('Frequency (Hz)')
-    plt.xlabel('Time (ms)')
-    plt.close(fig) 
+        ax.set_title(rf'Target Variable: ${cluster_test.target_var}$, Covariate(s): ${control_variables_str}$', fontsize=12)
+    
+    ax.set_ylabel('Frequency (Hz)')
+    ax.set_xlabel('Time (ms)')
+
+    plt.close(fig)  # Close the figure to avoid display and memory issues
     return fig
     
 
-def plot_tstats(tstats, cluster_test, figsize=(7,5), dpi=125, context='talk', cmap='Spectral_r'):
+def plot_tstats(tstats, cluster_test, freqs, figsize=(7, 5), dpi=125, context='talk', cmap='Spectral_r'):
     """
     Plots the t statistics for the regressor of interest.
 
@@ -153,31 +210,48 @@ def plot_tstats(tstats, cluster_test, figsize=(7,5), dpi=125, context='talk', cm
     - None: displays a plot of the t statistics.
 
     """
+    sns.set_context(context, rc={'axes.linewidth': 1})
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)  # Create axis object
+
+    # Plot the t statistics using imshow
+    cax = ax.imshow(tstats, interpolation='bicubic', cmap=cmap, aspect='auto', origin='lower')
+
+    # Get y-tick positions that are actually within the y-axis limits
+    yticks = ax.get_yticks()
+    ymin, ymax = ax.get_ylim()
+    visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+    # Select corresponding values from `freqs` (matching number of visible ticks)
+    selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+    selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+    # Ensure y-tick positions and labels align correctly
+    ax.set_yticks(visible_yticks)
+    ax.set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
     
-    sns.set_context(context,rc={'axes.linewidth': 1})
-    fig = plt.figure(figsize=figsize,dpi=dpi,layout='constrained')
-    plt.imshow(tstats, interpolation = 'Bicubic', cmap=cmap, aspect='auto', origin='lower')     
-    plt.tick_params(size=5,width=1)
-    plt.suptitle(rf'TFR {cluster_test.ch_name} $t$-statistics         ',fontsize=18)
-    cbar = plt.colorbar()
-    cbar.set_label(r'$t-statistic$',fontsize=18)
-    cbar.ax.tick_params(size=5,width=1,length=3)
-    # make title dynamic depending on whether or not you are controlling for other variables
+    # Customize color bar
+    cbar = plt.colorbar(cax, ax=ax)
+    cbar.set_label(r'$t-statistic$', fontsize=18)
+    cbar.ax.tick_params(size=5, width=1, length=3)
+
+    # Make title dynamic depending on whether or not you are controlling for other variables
+    ax.set_title(rf'TFR {cluster_test.ch_name} $t$-statistics', fontsize=18)
+
     if cluster_test.predictor_data.columns.tolist() == [cluster_test.target_var]:
-        plt.title(rf'Target Variable: ${cluster_test.target_var}$',fontsize=12)
-        # plt.title(f'{cluster_test.ch_name} encoding \n{cluster_test.target_var}')
+        ax.set_title(rf'Target Variable: ${cluster_test.target_var}$', fontsize=12)
     else:
         beh_variables = cluster_test.predictor_data.columns.tolist().copy()
         control_variables = [var for var in beh_variables if var != cluster_test.target_var] 
         control_variables_str = ", ".join(control_variables)
-        plt.title(rf'Target Variable: ${cluster_test.target_var}$, Covariate(s): ${control_variables_str}$',fontsize=12)
+        ax.set_title(rf'Target Variable: ${cluster_test.target_var}$, Covariate(s): ${control_variables_str}$', fontsize=12)
 
-    plt.ylabel('Frequency (Hz)')
-    plt.xlabel('Time (ms)')
-    plt.close(fig) 
+    ax.set_ylabel('Frequency (Hz)')
+    ax.set_xlabel('Time (ms)')
+
+    plt.close(fig)  # Close the figure to avoid display and memory issues
     return fig
 
-def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
+def plot_clusters(tstats,cluster_test,freqs,figsize=(9,4.5),dpi=125,context='talk'):
     """
     Plots clusters based on pixels with significant t-statistics for regressor of interest.
 
@@ -208,11 +282,37 @@ def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
                 axs[i].imshow(tstat_threshold[i], interpolation = 'Bicubic',cmap='Reds', aspect='auto',origin='lower')
                 axs[i].set_title(fr'$t_{{pixel}}>t_{{critical}}={np.round(tcritical,2)}$',fontsize=16)
                 axs[i].tick_params(size=5,width=1)
+
+                # Get y-tick positions that are actually within the y-axis limits
+                yticks = axs[i].get_yticks()
+                ymin, ymax = axs[i].get_ylim()
+                visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+                # Select corresponding values from `freqs` (matching number of visible ticks)
+                selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+                selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+                # Ensure y-tick positions and labels align correctly
+                axs[i].set_yticks(visible_yticks)
+                axs[i].set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
             
             else:
                 axs[i].imshow(tstat_threshold[i], interpolation = 'Bicubic',cmap='Blues', aspect='auto',origin='lower')
                 axs[i].set_title(fr'$t_{{pixel}}<t_{{critical}}={np.negative(np.round(tcritical,2))}$',fontsize=16)
                 axs[i].tick_params(size=5,width=1)
+
+                # Get y-tick positions that are actually within the y-axis limits
+                yticks = axs[i].get_yticks()
+                ymin, ymax = axs[i].get_ylim()
+                visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+                # Select corresponding values from `freqs` (matching number of visible ticks)
+                selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+                selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+                # Ensure y-tick positions and labels align correctly
+                axs[i].set_yticks(visible_yticks)
+                axs[i].set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
 
     elif cluster_test.alternative == 'greater':
         # binary tstat matrices thresholded by tcritical value
@@ -226,6 +326,19 @@ def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
         ax.imshow(tstat_threshold[0], interpolation = 'Bicubic',cmap='Reds', aspect='auto',origin='lower')
         ax.set_title(fr'$t_{{pixel}}>t_{{critical}}={np.round(tcritical,2)}$',fontsize=16)
         ax.tick_params(size=5,width=1)
+
+        # Get y-tick positions that are actually within the y-axis limits
+        yticks = ax.get_yticks()
+        ymin, ymax = ax.get_ylim()
+        visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+        # Select corresponding values from `freqs` (matching number of visible ticks)
+        selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+        selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+        # Ensure y-tick positions and labels align correctly
+        ax.set_yticks(visible_yticks)
+        ax.set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
     
     elif cluster_test.alternative == 'less':
         # binary tstat matrices thresholded by tcritical value
@@ -239,11 +352,24 @@ def plot_clusters(tstats,cluster_test,figsize=(9,4.5),dpi=125,context='talk'):
         ax.set_title(fr'$t_{{pixel}}<t_{{critical}}={np.negative(np.round(tcritical,2))}$',fontsize=16)
         ax.tick_params(size=5,width=1)
 
+        # Get y-tick positions that are actually within the y-axis limits
+        yticks = ax.get_yticks()
+        ymin, ymax = ax.get_ylim()
+        visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+        # Select corresponding values from `freqs` (matching number of visible ticks)
+        selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+        selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+        # Ensure y-tick positions and labels align correctly
+        ax.set_yticks(visible_yticks)
+        ax.set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
+
     plt.close(fig) 
     return fig
 
 
-def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dpi=125,context='talk'):
+def plot_max_clusters(cluster_test,tstats,freqs,which_cluster='all',figsize=(9,4.5),dpi=125,context='talk'):
     """
     Plots significant clusters (positive and negative).
 
@@ -292,6 +418,19 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dp
                     axs[i].set_title(r'Positive Cluster',fontsize=15)
                     axs[i].tick_params(size=5,width=1)
 
+                    # Get y-tick positions that are actually within the y-axis limits
+                    yticks = axs[i].get_yticks()
+                    ymin, ymax = axs[i].get_ylim()
+                    visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+                    # Select corresponding values from `freqs` (matching number of visible ticks)
+                    selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+                    selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+                    # Ensure y-tick positions and labels align correctly
+                    axs[i].set_yticks(visible_yticks)
+                    axs[i].set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
+
                 elif cluster['cluster_stat'] < 0:
                     axs[i].imshow(masked_tstat_plot, interpolation='bicubic', cmap='Blues', aspect='auto', origin='lower')
                     axs[i].text(0.95,0.95,('').join([r'$Max Cluster_{{statistic}}$',f'\n',
@@ -299,6 +438,19 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dp
                         va='top',ha='right',transform=axs[i].transAxes)
                     axs[i].set_title(r'Negative Cluster',fontsize=15)
                     axs[i].tick_params(size=5,width=1)
+  
+                    # Get y-tick positions that are actually within the y-axis limits
+                    yticks = axs[i].get_yticks()
+                    ymin, ymax = axs[i].get_ylim()
+                    visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+                    # Select corresponding values from `freqs` (matching number of visible ticks)
+                    selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+                    selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+                    # Ensure y-tick positions and labels align correctly
+                    axs[i].set_yticks(visible_yticks)
+                    axs[i].set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
 
         elif which_cluster=='positive':
             cluster = max_cluster_info.copy()[0]
@@ -324,6 +476,19 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dp
                 va='top',ha='right',transform=ax.transAxes)                
             ax.set_title(r'Positive Cluster',fontsize=15)
             axs[i].tick_params(size=5,width=1)
+
+            # Get y-tick positions that are actually within the y-axis limits
+            yticks = axs[i].get_yticks()
+            ymin, ymax = axs[i].get_ylim()
+            visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+            # Select corresponding values from `freqs` (matching number of visible ticks)
+            selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+            selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+            # Ensure y-tick positions and labels align correctly
+            axs[i].set_yticks(visible_yticks)
+            axs[i].set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
         
         elif which_cluster=='negative':
             cluster = max_cluster_info.copy()[1]
@@ -349,6 +514,19 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dp
                     va='top',ha='right',transform=ax.transAxes)
             ax.set_title(r'Negative Cluster',fontsize=15)
             axs[i].tick_params(size=5,width=1)
+
+            # Get y-tick positions that are actually within the y-axis limits
+            yticks = axs[i].get_yticks()
+            ymin, ymax = axs[i].get_ylim()
+            visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+            # Select corresponding values from `freqs` (matching number of visible ticks)
+            selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+            selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+            # Ensure y-tick positions and labels align correctly
+            axs[i].set_yticks(visible_yticks)
+            axs[i].set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
 
 
     else:
@@ -377,6 +555,11 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dp
                     va='top',ha='right',transform=ax.transAxes)
             plt.title(r'Positive Cluster',fontsize=15)
 
+            # get the number of ticks on the y-axis
+            num_ticks = len(axs[i].get_yticks())
+            # set the y-ticks to the subset of freqs
+            axs[i].set_yticklabels(freqs[::num_ticks])
+
         elif max_cluster_info[0]['cluster_stat'] < 0:
             fig,ax = plt.subplots(1,1,figsize=figsize,dpi=dpi,constrained_layout=True)
             fig.suptitle('TFR-Level Threshold: Max Cluster Statistic')
@@ -388,6 +571,18 @@ def plot_max_clusters(cluster_test,tstats,which_cluster='all',figsize=(9,4.5),dp
                     va='top',ha='right',transform=ax.transAxes)
             plt.title(r'Negative Cluster',fontsize=15)
 
+            # Get y-tick positions that are actually within the y-axis limits
+            yticks = axs[i].get_yticks()
+            ymin, ymax = axs[i].get_ylim()
+            visible_yticks = [yt for yt in yticks if ymin <= yt <= ymax]
+
+            # Select corresponding values from `freqs` (matching number of visible ticks)
+            selected_indices = np.linspace(0, len(freqs) - 1, len(visible_yticks), dtype=int)
+            selected_freqs = freqs[selected_indices]  # Pick actual values from freqs
+
+            # Ensure y-tick positions and labels align correctly
+            axs[i].set_yticks(visible_yticks)
+            axs[i].set_yticklabels([f"{f:.2f}" for f in selected_freqs])  # Format for readability
     plt.close(fig) 
 
     return fig
@@ -475,7 +670,7 @@ def plot_null_distribution(null_clusters, max_cluster_data, pvalue,figsize=(9,4.
     return fig
 
 
-def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_clusters, tstats, tstat_threshold,cluster_pvalue):
+def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_clusters, tstats, tstat_threshold,cluster_pvalue,freqs):
     """
     Plots all the results from a NeuroCluster object.
 
@@ -491,11 +686,11 @@ def plot_neurocluster_results(betas,cluster_test, max_cluster_data, null_cluster
     - None: displays beta coefficients, t statistics, significant clusters, maximum cluster(s), and null distribution plots.
 
     """
-    tcrit_plot = plot_tcritical(cluster_test)
-    beta_plot = plot_beta_coef(betas, cluster_test)
-    tstat_plot = plot_tstats(tstats, cluster_test)
-    cluster_plot = plot_clusters(tstats,cluster_test)
-    max_cluster_plot= plot_max_clusters(cluster_test,tstats)
+    tcrit_plot = plot_tcritical(cluster_test,freqs)
+    beta_plot = plot_beta_coef(betas, cluster_test,freqs)
+    tstat_plot = plot_tstats(tstats, cluster_test,freqs)
+    cluster_plot = plot_clusters(tstats,cluster_test,freqs)
+    max_cluster_plot= plot_max_clusters(cluster_test,tstats,freqs)
     null_distribution_plot = plot_null_distribution(null_clusters, max_cluster_data,cluster_pvalue)
 
     return tcrit_plot,beta_plot,tstat_plot,cluster_plot,max_cluster_plot,null_distribution_plot
