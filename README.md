@@ -140,7 +140,7 @@ Below is a schematic of the NeuroCluster workflow and quick summary. A more deta
 
 ## **Step 6 (optional): Generate and save plots**
 
-```beta_plot, tstat_plot, cluster_plot, max_cluster_plot, null_distribution_plot = NeuroCluster.plot_neurocluster_results(betas, cluster_test, max_cluster_data, null_cluster_distribution, tstats, tstat_threshold, cluster_pvalue)```
+```beta_plot, tstat_plot, cluster_plot, max_cluster_plot, null_distribution_plot = NeuroCluster.plot_neurocluster_results(betas, cluster_test, max_cluster_data, null_cluster_distribution, tstats, tstat_threshold, cluster_pvalue,freqs)```
     
 ```output_directory = f'{results_dir}/{demo_channel}_{target_var}'```
 
