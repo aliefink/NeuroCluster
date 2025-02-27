@@ -54,7 +54,7 @@ Cognitive neurophysiology offers a unique framework for studying cognitive brain
 
 # NeuroCluster Documentation
 
-`NeuroCluster` is accompanied by a detailed tutorial which outlines the workflow \autoref{fig:Fig1} for implementing this approach with time-frequency power estimates from multi-region LFP recording.
+`NeuroCluster` is accompanied by a detailed tutorial which outlines the workflow (Fig. 1) for implementing this approach with time-frequency power estimates from multi-region LFP recording.
 
 
 ![NeuroCluster workflow. This approach involves three key steps: (1) determine cluster statistic in true data, (2) generate a null distribution of cluster statistics by permuting dataset, (3) determine significance of true cluster statistic against null distribution.](../workflow/Figure1_workflow.png){#fig:Fig1}
