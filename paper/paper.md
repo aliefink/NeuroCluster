@@ -12,33 +12,32 @@ authors:
   - name: Alexandra Fink Skular
     orcid: 0000-0003-1648-4604
     equal-contrib: true
-    affiliation: "1, 2, 3" # (Multiple affiliations must be quoted)
+    affiliation: "1, 2, 3"
   - name: Christina Maher
     orcid: 0009-0003-8188-2083
-    equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
+    equal-contrib: true
     affiliation: "1, 2, 3"
   - name: Salman Qasim
     orcid: 0000-0001-8739-5962
-    corresponding: false # (This is how to denote the corresponding author)
+    corresponding: false
     affiliation: "2, 3"
   - name: Ignacio Saezfth
     orcid: 0000-0003-0651-2069
-    corresponding: true # (This is how to denote the corresponding author)
+    corresponding: true
     affiliation: "1, 2, 3, 4, 5"
 affiliations:
- - name: The Nash Family Department of Neuroscience, Icahn School of Medicine at Mount Sinai, NY, NY
+  - name: 'The Nash Family Department of Neuroscience, Icahn School of Medicine at Mount Sinai, NY, NY'
     index: 1
- - name: The Nash Family Center for Advanced Circuit Therapeutics, The Mount Sinai Hopsital, NY, NY
+  - name: 'The Nash Family Center for Advanced Circuit Therapeutics, The Mount Sinai Hospital, NY, NY'
     index: 2
- - name: The Center for Computational Psychiatry, Icahn School of Medicine at Mount Sinai, NY, NY
+  - name: 'The Center for Computational Psychiatry, Icahn School of Medicine at Mount Sinai, NY, NY'
     index: 3
-- name: Department of Neurosurgery, The Mount Sinai Hopsital, NY, NY 
+  - name: 'Department of Neurosurgery, The Mount Sinai Hospital, NY, NY'
     index: 4
-- name: Department of Neurology, The Mount Sinai Hopsital, NY, NY 
+  - name: 'Department of Neurology, The Mount Sinai Hospital, NY, NY'
     index: 5
-date: 03 September 2024
-bibliography: paper.bib
-
+date: '27 February 2025'
+bibliography: 'paper.bib'
 ---
 
 # Summary
