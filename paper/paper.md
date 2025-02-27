@@ -27,15 +27,15 @@ authors:
     affiliation: "1, 2, 3, 4, 5"
 affiliations:
  - name: The Nash Family Department of Neuroscience, Icahn School of Medicine at Mount Sinai, NY, NY
-   index: 1
+    index: 1
  - name: The Nash Family Center for Advanced Circuit Therapeutics, The Mount Sinai Hopsital, NY, NY
-   index: 2
- - name: The Center for Computational Psychiatry,Icahn School of Medicine at Mount Sinai, NY, NY
-   index: 3
+    index: 2
+ - name: The Center for Computational Psychiatry, Icahn School of Medicine at Mount Sinai, NY, NY
+    index: 3
 - name: Department of Neurosurgery, The Mount Sinai Hopsital, NY, NY 
-   index: 4
+    index: 4
 - name: Department of Neurology, The Mount Sinai Hopsital, NY, NY 
-   index: 5
+    index: 5
 date: 03 September 2024
 bibliography: paper.bib
 
