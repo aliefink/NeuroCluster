@@ -181,3 +181,12 @@ Below is a schematic of the NeuroCluster workflow and quick summary. A more deta
 
 This directory contains de-identified example neural (local field potential) and behavioral data for running NeuroCluster. Each electrode's neural data is stored in a separate ```.npy``` file. Behavioral data stored in ```sample_behavior.csv``` contains continuous model-based (expected value, RPE) and discrete model-free (reward outcome, condition) corresponding with the neural data provided. This example data provides users an opportunity to experiment locally with the NeuroCluster method and provides a template for formatting data to be used with this pipeline. 
 
+# Generating Synthetic Data  
+
+This directory contains a script for generating synthetic time-frequency representation (TFR) data with a known association to a simulated continuous variable. This was done to validate the method using a dataset with a known ground truth.  
+
+The notebook that generates the data is located at:  
+`/data/synthetic_validation_tfr_data/Generate_Synthetic_TFR_data.ipynb`  
+
+Findings from data generated using this notebook are reported in the manuscript (Fig. 3). The generated data can be found in the same path.  
+
