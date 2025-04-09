@@ -5,7 +5,7 @@ A Python pipeline for non-parametric cluster-based permutation testing for elect
 
 This repository contains code and example data for performing NeuroCluster. 
 
-**Contributions and Code of Conduct**: We welcome contributions to this project and are grateful for your interest in helping improve it! Whether you're fixing bugs, adding features, improving documentation, or sharing ideas, your input is valued. Before getting started, please take a moment to review our ![Contributing Guidelines](https://github.com/aliefink/NeuroCluster/blob/main/CONTRIBUTING.md)  and ![Code of Conduct](https://github.com/aliefink/NeuroCluster/blob/main/CODE_OF_CONDUCT.md), both of which are included in the repository. These documents outline the process for submitting contributions and the standards we uphold to ensure a respectful and inclusive community.
+**Contributions and Code of Conduct**: We welcome contributions to this project and are grateful for your interest in helping improve it! Whether you're fixing bugs, adding features, improving documentation, or sharing ideas, your input is valued. Before getting started, please take a moment to review our [Contributing Guidelines](https://github.com/aliefink/NeuroCluster/blob/main/CONTRIBUTING.md)  and [Code of Conduct](https://github.com/aliefink/NeuroCluster/blob/main/CODE_OF_CONDUCT.md), both of which are included in the repository. These documents outline the process for submitting contributions and the standards we uphold to ensure a respectful and inclusive community.
 
 
 ## Installation
