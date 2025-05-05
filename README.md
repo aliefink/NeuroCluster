@@ -18,15 +18,35 @@ This repository includes two levels of documentation:
 ## Installation
 
 ```
-conda create --name neurocluster_env pip requests git python=3.12.4
+# Create and activate a clean virtual environment (recommended)
+conda create -n neurocluster_env python=3.10 -y
 conda activate neurocluster_env
+
+# Install NeuroCluster from GitHub
 pip install git+https://github.com/aliefink/NeuroCluster.git
+
 ```
 
 ## Updating
 
 ```
-pip install --upgrade git+pip install git+https://github.com/aliefink/NeuroCluster.git
+pip install --upgrade git+https://github.com/aliefink/NeuroCluster.git
+
+```
+
+## Run Automatic Testing
+
+```
+# Activate virtual environment where NeuroCluster has been installed 
+conda activate neurocluster_env
+
+cd NeuroCluster
+
+# Run the test 
+pytest tests/test_workflow.py
+
+# View output 
+open tests/test_outputs
 
 ```
 
