@@ -29,4 +29,3 @@ dependencies = [
 ]
 [tool.setuptools.package-data]
 "NeuroCluster" = ["data/*.csv", "data/*.npy"]
-"NeuroCluster.workflow" = ["*.png"]
