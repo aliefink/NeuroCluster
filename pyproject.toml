@@ -27,3 +27,5 @@ dependencies = [
   "statsmodels",
   "seaborn"
 ]
+[tool.setuptools.package-data]
+"NeuroCluster" = ["data/*.csv", "data/*.npy"]

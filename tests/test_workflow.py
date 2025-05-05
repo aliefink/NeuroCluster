@@ -5,18 +5,17 @@ from glob import glob
 import NeuroCluster
 
 def test_real_data_cluster_workflow():
-    # Dynamically resolve the project root
-    project_root = os.path.dirname(os.path.dirname(__file__))
-    sample_data_dir = os.path.join(project_root, 'data')
+    # Resolve the data path from the installed NeuroCluster package
+    data_path = os.path.join(os.path.dirname(NeuroCluster.__file__), "data")
 
     # Load real data
-    sample_ieeg_files = glob(f'{sample_data_dir}/*.npy')
+    sample_ieeg_files = glob(os.path.join(data_path, "*.npy"))
     sample_ieeg_dict = {
         os.path.basename(f).split('.')[0]: np.load(f)
         for f in sample_ieeg_files
     }
 
-    sample_behav = pd.read_csv(os.path.join(sample_data_dir, 'sample_behavior.csv'))
+    sample_behav = pd.read_csv(os.path.join(data_path, 'sample_behavior.csv'))
     freqs = np.logspace(*np.log10([2, 200]), num=30)
 
     target_var = 'error'
@@ -44,6 +43,7 @@ def test_real_data_cluster_workflow():
     # Assertions
     assert isinstance(plots, tuple) and len(plots) == 6
 
+    # Save plots to a local output directory relative to the test file
     output_dir = os.path.join(os.path.dirname(__file__), 'test_outputs')
     os.makedirs(output_dir, exist_ok=True)
 
