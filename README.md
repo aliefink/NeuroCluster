@@ -36,6 +36,8 @@ pip install --upgrade git+https://github.com/aliefink/NeuroCluster.git
 
 ## Run Automatic Testing
 
+We provide a test script which validates the full statistical analysis workflow implemented in the NeuroCluster toolbox. It runs a regression-based cluster-based permutation test on synthetic data using pytest, and produces a visual output of the detected significant clusters. This test ensures that the core functionality of the toolbox—including regression modeling, thresholding, cluster formation, null distribution generation, p-value computation, and plotting works as expected.
+
 ```
 # Activate virtual environment where NeuroCluster has been installed 
 conda activate neurocluster_env
