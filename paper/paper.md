@@ -1,5 +1,5 @@
 ---
-title: 'NeuroCluster: A Python toolbox for nonparametric cluster-based statistical testing of neurophysiological data with respect to continuous predictors.'
+title: "NeuroCluster: A Python toolbox for nonparametric cluster-based statistical testing of neurophysiological data with respect to continuous predictors."
 tags:
   - Python
   - neurophysiology
@@ -36,10 +36,9 @@ affiliations:
     index: 4
   - name: 'Department of Neurology, The Mount Sinai Hospital, NY, NY'
     index: 5
-date: '27 February 2025'
-bibliography: 'paper.bib'
+date: "2025-02-27"
+bibliography: paper.bib
 ---
-
 # Summary
 
 Cognitive neurophysiology offers a unique framework for studying cognitive brain-behavior relationships by relating electrophysiological signals to complex behaviors. With the advent of new technical and behavioral paradigms, researchers can design cognitive experiments that leverage both the spatiotemporal resolution of electrophysiological data and the complexity of continuous behavioral variables. Analyzing these data requires sophisticated statistical methods that can interpret multidimensional neurophysiological data and dynamic, continuous behavioral variables. Often used statistical frameworks for nonparametric, cluster-based statistical tests are specifically focused on the contrast between discrete behavioral conditions but are not suitable for assessing how continuous variables predict the occurrence of clusters in neurophysiological data. NeuroCluster is an open-source Python toolbox for analysis of two-dimensional electrophysiological data (e.g. time-frequency representations)  related to multivariate and continuous behavioral variables.  NeuroCluster introduces a statistical approach which uses nonparametric cluster-based permutation testing in tandem with linear regression to identify two-dimensional clusters of neurophysiological activity that significantly encodes time-varying, continuous behavioral variables. Uniquely, it also supports multivariate analyses by allowing for multiple behavioral predictors to model neural activity. NeuroCluster addresses a methodological gap in statistical approaches to relate continuous, cognitive predictors to underlying electrophysiological activity with time and frequency resolution, to determine the neurocomputational processes giving rise to complex behaviors. 
