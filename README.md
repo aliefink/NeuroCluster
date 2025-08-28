@@ -39,17 +39,48 @@ pip install --upgrade git+https://github.com/aliefink/NeuroCluster.git
 We provide a test script which validates the full statistical analysis workflow implemented in the NeuroCluster toolbox. It runs a regression-based cluster-based permutation test on synthetic data using pytest, and produces a visual output of the detected significant clusters. This test ensures that the core functionality of the toolbox—including regression modeling, thresholding, cluster formation, null distribution generation, p-value computation, and plotting works as expected.
 
 ```
-# Activate virtual environment where NeuroCluster has been installed 
+# Activate the virtual environment where NeuroCluster has been installed
 conda activate neurocluster_env
 
+# Navigate to the project directory
 cd NeuroCluster
 
-pip install pytest # install pytest if not currently installed in your conda environment
+# Install pytest if not already in your environment
+pip install pytest
 
-# Run the test 
-pytest tests/test_workflow.py
+# Run Tests
 
-# View output 
+# Run only individual unit tests (fast, isolated functions – 6 total)
+# These step through each aspect of the pipeline:
+
+# 1. TFR regression (compute betas and t-stats)
+pytest -k test_tfr_regression -m unit
+
+# 2. Threshold t-stats (determine critical value)
+pytest -k test_threshold_tfr_tstat -m unit
+
+# 3. Extract max cluster from t-stats
+pytest -k test_max_tfr_cluster -m unit
+
+# 4. Compute null distribution via permutations
+pytest -k test_compute_null_cluster_stats -m unit
+
+# 5. Perform cluster significance test
+pytest -k test_cluster_significance_test -m unit
+
+# 6. Plot results (generate figures from analysis)
+pytest -k test_plot_results -m unit
+
+# 1. Run all individual unit tests at once 
+pytest -m unit
+
+# 2. Run only the integration test (end-to-end workflow, writes output plots)
+pytest -m integration
+
+# 3. Run all tests (unit + integration)
+pytest
+
+# View test outputs (for integration tests)
 open tests/test_outputs
 
 ```
