@@ -35,3 +35,7 @@ MANIFEST
 paper/~$uroCluster_V2_CM.docx
 paper/~$per_text.docx
 paper/paper_draft_SEQ.docx
+
+
+venv/
+.Rhistory
