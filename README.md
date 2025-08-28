@@ -44,6 +44,8 @@ conda activate neurocluster_env
 
 cd NeuroCluster
 
+pip install pytest # install pytest if not currently installed in your conda environment
+
 # Run the test 
 pytest tests/test_workflow.py
 
