@@ -46,3 +46,6 @@ dependencies = [
   # Seaborn is pure-Python; keep a modern floor
   "seaborn>=0.12"
 ]
+
+[project.optional-dependencies]
+test = ["pytest>=7", "pytest-cov>=4"]
