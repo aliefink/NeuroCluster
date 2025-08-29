@@ -13,7 +13,7 @@ jobs:
       matrix:
         python-version: ['3.10', '3.11']
     env:
-      MPLBACKEND: Agg   # ensure headless matplotlib
+      MPLBACKEND: Agg     # headless matplotlib
     steps:
       - uses: actions/checkout@v4
 
@@ -25,10 +25,19 @@ jobs:
       - name: Upgrade pip
         run: python -m pip install --upgrade pip
 
-      - name: Install dependencies
+      # choose ONE of the two install approaches:
+
+      # (A) requirements files:
+      - name: Install deps and package
         run: |
           pip install -r requirements.txt -r requirements-dev.txt
           pip install -e .
 
-      - name: Run tests
-        run: pytest -q
+      # (B) OR extras (if you added [project.optional-dependencies].test):
+      # - run: pip install -e ".[test]"
+
+      - name: Run unit tests (fast)
+        run: pytest -m unit -q
+
+      - name: Run integration tests (E2E)
+        run: pytest -m integration -q
